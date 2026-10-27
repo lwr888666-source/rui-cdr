@@ -224,7 +224,6 @@ fn paint(
         brand::gradient(&painter, rect);
     }
 }
-}
 
 /// The main window's size: the one kept from the last session when it
 /// is sensible, else the default; never larger than the monitor.
