@@ -1,0 +1,33 @@
+# Export docker
+
+Window > Panels > Export keeps a list of assets and exports them all at
+once, each in its own format, to one folder.
+
+## Assets
+
+- Add Pages adds every page of the drawing (a page already listed is
+  not added again), named after the page.
+- Add Selection adds the selected objects as one asset, cropped to their
+  bounds, named after the object when it has a name ("Object" or
+  "Selection" otherwise) and numbered.
+- New assets take the format and resolution under "New assets"
+  (default PNG at 150 dpi).
+- Each row: a tick (only ticked assets are exported), the name (the file
+  name), the format, the resolution for raster formats (PNG, JPEG, BMP,
+  TIFF, WebP, GIF, PSD; 72 to 2400 dpi) and ✕ to remove it. The link
+  under the name goes to the page or selects the objects.
+- An asset whose page is deleted goes; deleted objects leave their
+  asset, and an asset with none left goes.
+
+## Export
+
+- Export (n) writes the ticked assets to the chosen folder (Browse...
+  chooses it; the first Export asks for one). In the browser every file
+  is downloaded.
+- File names are the asset names with `/ \ : * ? " < > |` and control
+  characters replaced by `_`; an empty name is "asset". Two assets that
+  would write the same file (ignoring case) get " (2)", " (3)" and so on.
+- Each asset is exported as File > Export would with its format and
+  resolution (raster formats on a transparent background where the
+  format allows it). The status bar says how many files were written, or
+  the first error.

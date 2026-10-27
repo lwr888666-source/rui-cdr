@@ -1,0 +1,24 @@
+# Vista de várias páginas
+
+[[menu.view > menu.view.multipage]] mostra todas as páginas do desenho de uma vez
+na área de trabalho, para você compará-las e editá-las lado a lado.
+
+## A disposição {#layout}
+
+As páginas ficam em uma grade, na ordem: duas colunas para até quatro páginas,
+três para até nove, e assim por diante. Cada página mostra o número e o nome
+embaixo; os da página atual ficam na cor normal do texto, os outros
+esmaecidos.
+
+## Trabalhar na vista de várias páginas {#working}
+
+- A página atual é editada como sempre: réguas, linhas-guia, grades e a barra de
+  status se referem a ela.
+- Clique ou arraste em outra página para torná-la atual e trabalhar nela na
+  hora.
+- As guias de página e o navegador também mudam a página atual.
+- [[menu.view.zoom_to_fit]] (<kbd>F4</kbd>) encaixa todas as páginas na janela.
+
+Escolha [[menu.view.multipage]] de novo para voltar a uma página por vez.
+[[menu.view.page_sorter]] mostra as páginas em miniatura; as duas vistas se
+excluem.

@@ -1,0 +1,93 @@
+[package]
+name = "rui-cdr"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Rui: Vector Illustration Editor by CoreSDK"
+
+[[bin]]
+name = "rui-cdr"
+path = "src/main.rs"
+
+[build-dependencies]
+winresource = "0.1"
+
+[dependencies]
+tracedraw-core.workspace = true
+tracedraw-cdr.workspace = true
+tracedraw-io.workspace = true
+tracedraw-text.workspace = true
+tracedraw-render.workspace = true
+tracedraw-vba.workspace = true
+tracedraw-vba-project.workspace = true
+kurbo.workspace = true
+tiny-skia.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+encoding_rs.workspace = true
+boa_engine = "0.20"
+sha2 = "0.10"
+base64 = "0.22"
+qrcode = { version = "0.14", default-features = false }
+rqrr = "0.9"
+csv = "1"
+i_overlay = "9"
+eframe.workspace = true
+egui.workspace = true
+rfd.workspace = true
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "bmp", "gif", "webp", "tiff"] }
+log.workspace = true
+env_logger.workspace = true
+flate2 = "1"
+web-time = "1"
+# Local dates and times (Time Tracker), with the system time zone.
+jiff = "0.2"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# The window drawn with wgpu (Direct3D 12, Vulkan or Metal): the graphics
+# card chosen in Options, or its software adapter (#445, #439).
+eframe = { workspace = true, features = ["wgpu"] }
+pollster = "0.4"
+arboard = { version = "3", default-features = false, features = ["wayland-data-control"] }
+# AI Drawing: HTTPS requests to the AI service the user sets up.
+ureq = { version = "3", features = ["platform-verifier"] }
+# Lossy WebP export (libwebp, BSD licence): the pure-Rust encoder writes
+# lossless files only (#592).
+webp = { version = "0.3", default-features = false }
+
+# The browser build: WebGL canvas, file pickers and downloads through the
+# DOM, randomness and time from JavaScript.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlCanvasElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url", "Location", "Storage", "Event", "EventTarget", "KeyboardEvent", "MouseEvent", "Response", "Request", "RequestInit", "RequestMode", "Headers"] }
+getrandom02 = { package = "getrandom", version = "0.2", features = ["js"] }
+getrandom03 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+boa_engine = { version = "0.20", features = ["js"] }
+jiff = { version = "0.2", features = ["js"] }
+
+# Reads back the PDFs the tests publish; ICC profiles built for tests.
+[dev-dependencies]
+lopdf = { version = "0.36", default-features = false }
+tracedraw-core = { workspace = true, features = ["test-profiles"] }
+
+[package.metadata.deb]
+name = "tracedraw"
+maintainer = "TraceDraw contributors <noreply@tracedraw.dev>"
+copyright = "2026, Ighor Toth and the TraceDraw contributors"
+license-file = ["../../LICENSE-MIT", "0"]
+extended-description = "Open-source vector illustration editor with a classic desktop workflow and a .cdr reader."
+section = "graphics"
+priority = "optional"
+depends = "$auto"
+assets = [
+    ["target/release/tracedraw", "usr/bin/", "755"],
+    ["target/release/tracedraw-cli", "usr/bin/", "755"],
+    ["../../packaging/linux/tracedraw.desktop", "usr/share/applications/", "644"],
+    ["../../assets/icon/tracedraw-256.png", "usr/share/icons/hicolor/256x256/apps/tracedraw.png", "644"],
+    ["../../README.md", "usr/share/doc/tracedraw/README", "644"],
+]

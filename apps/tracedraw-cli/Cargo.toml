@@ -1,0 +1,24 @@
+[package]
+name = "rui-cdr-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Headless rui-ColeSDK: inspect .cdr files and convert documents"
+
+[[bin]]
+name = "rui-cdr-cli"
+path = "src/main.rs"
+
+[dependencies]
+tracedraw-core.workspace = true
+tracedraw-cdr.workspace = true
+tracedraw-io.workspace = true
+tracedraw-render.workspace = true
+tracedraw-text.workspace = true
+env_logger.workspace = true
+log.workspace = true
+flate2 = "1"
+
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["png", "bmp"] }
+zip.workspace = true

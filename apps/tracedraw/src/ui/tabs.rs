@@ -1,0 +1,259 @@
+//! The document tabs above the rulers: the Welcome Screen, one tab per open
+//! drawing (an asterisk marks unsaved changes; the close button shows on
+//! the hovered tab) and the New tab after the last one, over a blue line
+//! that runs the width of the window. The Welcome Screen tab closes to its
+//! house alone, which shows the Welcome Screen again (#677).
+
+use crate::app::App;
+use crate::i18n::tr;
+use crate::theme::Tokens;
+use egui::{Color32, Pos2, Rect, Sense, Stroke, Ui, Vec2};
+
+/// Height of a tab; the blue line adds one pixel under it.
+pub const TAB_HEIGHT: f32 = 26.0;
+const PAD: f32 = 15.0;
+const CLOSE: f32 = 14.0;
+const FONT: f32 = 13.0;
+/// The line under the tabs.
+const LINE: Color32 = Color32::from_rgb(0x00, 0xAD, 0xFE);
+
+/// What a click on the strip asked for.
+enum Action {
+    Welcome,
+    CloseWelcome,
+    Switch(usize),
+    Close(usize),
+    New,
+}
+
+pub fn document_tabs(app: &mut App, ui: &mut Ui) {
+    let mut action = None;
+    let strip = ui.max_rect();
+    // Nothing below the line: the strip ends where it does.
+    ui.spacing_mut().item_spacing.y = 0.0;
+    ui.horizontal(|ui| {
+        ui.spacing_mut().item_spacing.x = 1.0;
+        let welcome = app.show_welcome || !app.has_document();
+        // Shown again, the Welcome Screen has its whole tab back.
+        if welcome && app.settings.welcome_tab_closed {
+            app.settings.welcome_tab_closed = false;
+        }
+        match welcome_tab(
+            ui,
+            welcome,
+            app.settings.welcome_tab_closed,
+            app.has_document(),
+        ) {
+            TabClick::Select => action = Some(Action::Welcome),
+            TabClick::Close => action = Some(Action::CloseWelcome),
+            TabClick::None => {}
+        }
+        for i in 0..app.docs.len() {
+            let title = app.document_tab_title(i);
+            let active = !app.show_welcome && i == app.active_doc;
+            match doc_tab(ui, i, &title, active) {
+                TabClick::Select => action = Some(Action::Switch(i)),
+                TabClick::Close => action = Some(Action::Close(i)),
+                TabClick::None => {}
+            }
+        }
+        if new_tab(ui) {
+            action = Some(Action::New);
+        }
+    });
+    let line_y = strip.top() + TAB_HEIGHT;
+    ui.painter().rect_filled(
+        Rect::from_min_max(
+            Pos2::new(strip.left(), line_y),
+            Pos2::new(strip.right(), line_y + 1.0),
+        ),
+        0.0,
+        LINE,
+    );
+    ui.allocate_space(Vec2::new(0.0, 1.0));
+    match action {
+        Some(Action::Welcome) => app.show_welcome = true,
+        Some(Action::CloseWelcome) => {
+            app.settings.welcome_tab_closed = true;
+            app.show_welcome = false;
+        }
+        Some(Action::Switch(i)) => app.switch_document(i),
+        Some(Action::Close(i)) => {
+            app.switch_document(i);
+            app.close_document();
+        }
+        Some(Action::New) => app.request_new_document(),
+        None => {}
+    }
+}
+
+fn tab_fill(active: bool, hovered: bool) -> Color32 {
+    if active {
+        crate::theme::Tokens::tab_active()
+    } else if hovered {
+        crate::theme::Tokens::tool_hover()
+    } else {
+        crate::theme::Tokens::tab()
+    }
+}
+
+/// The Welcome Screen tab: a house and the title, with a close button on
+/// hover while a drawing is open (`closable`); `closed`, the house alone,
+/// which shows the Welcome Screen again.
+fn welcome_tab(ui: &mut Ui, active: bool, closed: bool, closable: bool) -> TabClick {
+    let icon = 16.0;
+    if closed {
+        let (rect, _) = ui.allocate_exact_size(Vec2::splat(TAB_HEIGHT), Sense::hover());
+        let resp = ui.interact(rect, egui::Id::new(WELCOME_TAB), Sense::click());
+        let painter = ui.painter();
+        painter.rect_filled(rect, 0.0, tab_fill(active, resp.hovered()));
+        house(
+            painter,
+            rect.center() - Vec2::splat(icon / 2.0),
+            crate::theme::Tokens::icon(),
+        );
+        return if resp.on_hover_text(tr("welcome.title")).clicked() {
+            TabClick::Select
+        } else {
+            TabClick::None
+        };
+    }
+    let label = tr("welcome.title");
+    let galley = ui.painter().layout_no_wrap(
+        label,
+        egui::FontId::proportional(FONT),
+        crate::theme::Tokens::text(),
+    );
+    let width = 6.0 + icon + 15.0 + galley.size().x + 27.0;
+    let (rect, _) = ui.allocate_exact_size(Vec2::new(width, TAB_HEIGHT), Sense::hover());
+    let resp = ui.interact(rect, egui::Id::new(WELCOME_TAB), Sense::click());
+    let close_rect = Rect::from_center_size(
+        Pos2::new(rect.right() - 6.0 - CLOSE / 2.0, rect.center().y),
+        Vec2::splat(CLOSE),
+    );
+    let close_resp =
+        closable.then(|| ui.interact(close_rect, egui::Id::new(WELCOME_CLOSE), Sense::click()));
+    let close_hovered = close_resp.as_ref().is_some_and(|r| r.hovered());
+    let painter = ui.painter();
+    painter.rect_filled(rect, 0.0, tab_fill(active, resp.hovered()));
+    house(
+        painter,
+        Pos2::new(rect.left() + 6.0, rect.top() + 5.0),
+        crate::theme::Tokens::icon(),
+    );
+    painter.galley(
+        Pos2::new(
+            rect.left() + 6.0 + icon + 15.0,
+            (rect.center().y - galley.size().y / 2.0).round(),
+        ),
+        galley,
+        crate::theme::Tokens::text(),
+    );
+    if closable && (resp.hovered() || close_hovered) {
+        close_mark(painter, close_rect, close_hovered);
+    }
+    if close_resp.is_some_and(|r| r.clicked()) || (closable && resp.middle_clicked()) {
+        TabClick::Close
+    } else if resp.clicked() {
+        TabClick::Select
+    } else {
+        TabClick::None
+    }
+}
+
+/// The ids of the Welcome Screen tab and of its close button.
+pub(crate) const WELCOME_TAB: &str = "welcome_tab";
+pub(crate) const WELCOME_CLOSE: &str = "welcome_tab_close";
+
+/// A tab's close button: an X, on a square while the pointer is over it.
+fn close_mark(painter: &egui::Painter, close_rect: Rect, hovered: bool) {
+    if hovered {
+        painter.rect_filled(close_rect, 2.0, Tokens::border());
+    }
+    let s = Stroke::new(1.2, Tokens::text_dim());
+    let r = close_rect.shrink(3.5);
+    painter.line_segment([r.left_top(), r.right_bottom()], s);
+    painter.line_segment([r.right_top(), r.left_bottom()], s);
+}
+
+/// A filled house, 16 pixels square, top-left at `o`: a roof with eaves
+/// and a body with a door.
+fn house(painter: &egui::Painter, o: Pos2, color: Color32) {
+    let roof = vec![
+        Pos2::new(o.x + 8.0, o.y),
+        Pos2::new(o.x + 16.0, o.y + 8.5),
+        Pos2::new(o.x, o.y + 8.5),
+    ];
+    painter.add(egui::Shape::convex_polygon(roof, color, Stroke::NONE));
+    painter.rect_filled(
+        Rect::from_min_max(
+            Pos2::new(o.x + 2.0, o.y + 8.0),
+            Pos2::new(o.x + 14.0, o.y + 16.0),
+        ),
+        0.0,
+        color,
+    );
+    painter.rect_filled(
+        Rect::from_min_max(
+            Pos2::new(o.x + 6.0, o.y + 12.0),
+            Pos2::new(o.x + 10.0, o.y + 16.0),
+        ),
+        0.0,
+        crate::theme::Tokens::tab(),
+    );
+}
+
+/// The New tab: a grey plus on a tab-coloured square.
+fn new_tab(ui: &mut Ui) -> bool {
+    let (rect, resp) = ui.allocate_exact_size(Vec2::splat(TAB_HEIGHT), Sense::click());
+    let painter = ui.painter();
+    painter.rect_filled(rect, 0.0, tab_fill(false, resp.hovered()));
+    let c = rect.center();
+    let s = Stroke::new(2.0, crate::theme::Tokens::text_dim());
+    painter.line_segment([c - Vec2::new(7.0, 0.0), c + Vec2::new(7.0, 0.0)], s);
+    painter.line_segment([c - Vec2::new(0.0, 7.0), c + Vec2::new(0.0, 7.0)], s);
+    resp.on_hover_text(tr("menu.file.new")).clicked()
+}
+
+enum TabClick {
+    None,
+    Select,
+    Close,
+}
+
+fn doc_tab(ui: &mut Ui, i: usize, title: &str, active: bool) -> TabClick {
+    let galley = ui.painter().layout_no_wrap(
+        title.to_string(),
+        egui::FontId::proportional(FONT),
+        crate::theme::Tokens::text(),
+    );
+    let width = (PAD + galley.size().x + 6.0 + CLOSE + 8.0).max(116.0);
+    let (rect, resp) = ui.allocate_exact_size(Vec2::new(width, TAB_HEIGHT), Sense::click());
+    let close_rect = Rect::from_center_size(
+        Pos2::new(rect.right() - 8.0 - CLOSE / 2.0, rect.center().y),
+        Vec2::splat(CLOSE),
+    );
+    let close_id = ui.id().with(("doc_tab_close", i));
+    let close_resp = ui.interact(close_rect, close_id, Sense::click());
+    let painter = ui.painter();
+    painter.rect_filled(rect, 0.0, tab_fill(active, resp.hovered()));
+    painter.galley(
+        Pos2::new(
+            rect.left() + PAD,
+            (rect.center().y - galley.size().y / 2.0).round(),
+        ),
+        galley,
+        crate::theme::Tokens::text(),
+    );
+    if resp.hovered() || close_resp.hovered() {
+        close_mark(painter, close_rect, close_resp.hovered());
+    }
+    let resp = resp.on_hover_text(title);
+    if close_resp.clicked() || resp.middle_clicked() {
+        TabClick::Close
+    } else if resp.clicked() {
+        TabClick::Select
+    } else {
+        TabClick::None
+    }
+}
