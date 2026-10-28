@@ -6,7 +6,7 @@ Rust 1.97.0 and the checked-in lockfile. The `Windows package` manual
 entry point calls this same workflow, so pushes do not start duplicate
 Windows builds. Failed jobs retain their dependency cache for retries.
 
-Cargo packages and executable names are `tracedraw` and `tracedraw-cli`.
+Cargo packages and executable names are `rui` and `rui-cli`.
 Native package scripts, installer source paths, the browser loader and
 release artifact patterns use these names too. Shell scripts are checked
 out with LF line endings and called through Bash from the workflow.

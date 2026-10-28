@@ -285,7 +285,7 @@ fn root_frame(app: &mut App, ui: &mut Ui) {
     } else {
         tr("welcome.title")
     };
-    set_window_title(&ctx, format!("TraceDraw - {doc_name}"));
+    set_window_title(&ctx, format!("Rui - {doc_name}"));
 
     // Closing the window with unsaved drawings asks about each first.
     #[cfg(not(target_arch = "wasm32"))]

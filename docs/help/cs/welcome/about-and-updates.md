@@ -1,6 +1,6 @@
-# O aplikaci TraceDraw a aktualizace
+# O aplikaci Rui a aktualizace
 
-TraceDraw je svobodný a má otevřený zdrojový kód. Tato stránka vysvětluje, jak
+Rui je svobodný a má otevřený zdrojový kód. Tato stránka vysvětluje, jak
 zjistit, kterou verzi máte, jak získat novější a kde požádat o pomoc.
 
 ## Okno O aplikaci {#about}
@@ -9,16 +9,16 @@ Zvolte [[menu.help > menu.help.about]] a uvidíte spuštěnou verzi, autora,
 licenci, odkaz na zdrojový kód a z čeho je program postaven. Zavřete jej
 tlačítkem [[dialog.close]] nebo klávesou <kbd>Enter</kbd> či <kbd>Esc</kbd>.
 
-![Okno O aplikaci TraceDraw](../../img/welcome-about-and-updates-about.png)
+![Okno O aplikaci Rui](../../img/welcome-about-and-updates-about.png)
 
 ## Kontrola aktualizací {#updates}
 
-Na počítači vám TraceDraw může oznámit vydání novější verze.
+Na počítači vám Rui může oznámit vydání novější verze.
 
 Kontrola hned teď:
 
 1. Zvolte [[menu.help > menu.help.updates]].
-2. TraceDraw se zeptá stránky vydání projektu na nejnovější verzi a sdělí, zda
+2. Rui se zeptá stránky vydání projektu na nejnovější verzi a sdělí, zda
    je novější než vaše. Testovací a noční sestavení se nikdy nenabízejí.
 3. Pokud existuje novější verze, vyberte, co udělat:
    - **Stáhnout** otevře stažení souboru pro váš systém (instalátor nebo
@@ -29,10 +29,10 @@ Kontrola hned teď:
    - **Přeskočit tuto verzi** tuto verzi přestane nabízet.
    - [[dialog.close]] okno zavře.
 
-Když TraceDraw běží jako linuxový AppImage, okno může nabídnout i
+Když Rui běží jako linuxový AppImage, okno může nabídnout i
 **Nainstalovat**: stáhne nový AppImage vedle toho spuštěného, ověří, že je
 stažení úplné a pravé, a nahradí jím starý soubor. Nová verze se spustí při
-příštím otevření TraceDraw. Pokud něco nesedí, starý soubor zůstane beze změny
+příštím otevření Rui. Pokud něco nesedí, starý soubor zůstane beze změny
 a okno vysvětlí proč.
 
 Pokud kontrola selže (například bez připojení k internetu), okno to oznámí a
@@ -44,7 +44,7 @@ nabídne stránku vydání.
 
 [[menu.tools > menu.tools.options > menu.tools.options_global]], stránka
 [[options.general]], má nastavení pro kontrolu aktualizací při spuštění. Zpočátku
-je zapnuté: jednou denně TraceDraw při spuštění potichu zkontroluje a ozve se,
+je zapnuté: jednou denně Rui při spuštění potichu zkontroluje a ozve se,
 jen když vyšla novější verze, kterou jste nepřeskočili.
 
 > **Poznámka:** Verze pro prohlížeč je vždy nejnovější. Tam
@@ -52,7 +52,7 @@ jen když vyšla novější verze, kterou jste nepřeskočili.
 
 ## Uvítací obrazovka {#welcome-screen}
 
-Uvítací obrazovka je první karta po spuštění TraceDraw. Z ní můžete vytvořit
+Uvítací obrazovka je první karta po spuštění Rui. Z ní můžete vytvořit
 kresbu, otevřít některou z naposledy použitých kreseb (každá s náhledem;
 [[menu.file.clear_recent]] je zapomene), začít ze šablony, číst novinky a najít
 výukové materiály. Zvolte [[menu.help > menu.help.welcome_screen]] a znovu se
@@ -67,4 +67,4 @@ výukovou stránku a [[menu.help.whats_new]] novinky.
 - [[menu.help > menu.help.support]] otevře systém hlášení chyb, kde můžete
   nahlásit problém.
 - [[menu.help > menu.help.message_settings]] otevře volby, kde se nastavují
-  zprávy TraceDraw.
+  zprávy Rui.

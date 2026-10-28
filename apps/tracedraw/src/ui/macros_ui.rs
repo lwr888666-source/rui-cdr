@@ -185,7 +185,7 @@ fn prompt(app: &mut App, ctx: &Context) {
             let labels: Vec<String> = list.iter().map(|(k, _)| tr(k)).collect();
             let default = msgbox_default(style);
             let title = if title.is_empty() {
-                "TraceDraw".to_string()
+                "Rui".to_string()
             } else {
                 title.clone()
             };
@@ -227,7 +227,7 @@ fn prompt(app: &mut App, ctx: &Context) {
             text,
         } => {
             let title = if title.is_empty() {
-                "TraceDraw".to_string()
+                "Rui".to_string()
             } else {
                 title.clone()
             };

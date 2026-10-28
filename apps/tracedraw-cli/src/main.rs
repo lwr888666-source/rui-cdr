@@ -1,9 +1,9 @@
 //! tracedraw-cli: headless tools.
 //!
 //! ```text
-//! tracedraw-cli inspect file.cdr          dump the RIFF chunk tree
-//! tracedraw-cli info file.cdr             version, pages, objects, warnings
-//! tracedraw-cli convert in.cdr out.svg    export the first page (or .tdraw)
+//! rui-cli inspect file.cdr          dump the RIFF chunk tree
+//! rui-cli info file.cdr             version, pages, objects, warnings
+//! rui-cli convert in.cdr out.svg    export the first page (or .tdraw)
 //! ```
 
 use std::process::ExitCode;
@@ -11,7 +11,7 @@ use std::process::ExitCode;
 /// Damage a file deterministically: truncate, flip bytes, cut a span, or
 /// overwrite a few 32-bit words.
 /// `println!` that ends the program quietly when the reader of its output
-/// went away (`tracedraw-cli inspect file | head`) instead of panicking.
+/// went away (`rui-cli inspect file | head`) instead of panicking.
 macro_rules! outln {
     () => {
         outln!("")
@@ -80,7 +80,7 @@ fn mutate(data: &[u8], seed: u64) -> Vec<u8> {
 }
 
 fn usage() -> ExitCode {
-    eprintln!("usage:\n  tracedraw-cli inspect <file.cdr> [chunk id]\n  tracedraw-cli info <file.cdr|file.cmx|file.tdraw>\n  tracedraw-cli icc <profile.icc>\n  tracedraw-cli stress <file> [iterations]   mutation test of the file's reader\n  tracedraw-cli convert <in.cdr|in.cmx|in.tdraw|in.svg|in.pdf|in.ai|in.eps|in.ps|in.prn|in.dxf|in.psd|in.emf|in.wmf|in.plt|in.txt|in.rtf|in.docx> <out.svg|out.pdf|out.eps|out.ps|out.prn|out.dxf|out.emf|out.wmf|out.plt|out.psd|out.html|out.png|out.tdraw|out.cdr>");
+    eprintln!("usage:\n  rui-cli inspect <file.cdr> [chunk id]\n  rui-cli info <file.cdr|file.cmx|file.tdraw>\n  rui-cli icc <profile.icc>\n  rui-cli stress <file> [iterations]   mutation test of the file's reader\n  rui-cli convert <in.cdr|in.cmx|in.tdraw|in.svg|in.pdf|in.ai|in.eps|in.ps|in.prn|in.dxf|in.psd|in.emf|in.wmf|in.plt|in.txt|in.rtf|in.docx> <out.svg|out.pdf|out.eps|out.ps|out.prn|out.dxf|out.emf|out.wmf|out.plt|out.psd|out.html|out.png|out.tdraw|out.cdr>");
     ExitCode::from(2)
 }
 

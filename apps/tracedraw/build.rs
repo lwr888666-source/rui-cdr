@@ -2,10 +2,10 @@
 // the fonts bundled into the browser build.
 fn main() {
     web_fonts();
-    println!("cargo:rerun-if-changed=../../assets/icon/tracedraw.ico");
+    println!("cargo:rerun-if-changed=../../assets/icon/rui.ico");
     if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("windows") {
         let mut res = winresource::WindowsResource::new();
-        res.set_icon("../../assets/icon/tracedraw.ico");
+        res.set_icon("../../assets/icon/rui.ico");
         res.set("ProductName", "Rui");
         res.set("FileDescription", "Rui Vector Illustration Editor");
         res.set("CompanyName", "CoreSDK");

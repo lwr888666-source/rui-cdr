@@ -1,6 +1,6 @@
 # Attribution
 
-Every asset bundled with TraceDraw, with its author, source and license.
+Every asset bundled with Rui, with its author, source and license.
 Code dependencies (Rust crates) keep their own licenses, recorded in
 their packages; `cargo tree` lists them from `Cargo.lock`.
 Fonts embedded in PDF files are subset with the `subsetter` crate
@@ -33,3 +33,7 @@ Not bundled on purpose: licensed spot colour libraries, third-party
 clipart, templates, fonts other than the ones above, and colour profiles
 other than the ones a user loads. Test files that belong to someone else
 are never committed.
+
+The Rui application and native window use the project-provided artwork in `assets/icon_source.jpg`, exported to the PNG and ICO files in `assets/icon/rui*`.
+
+The Simplified Chinese installer messages are from `jrsoftware/issrc` at commit `2527da77ff7983514f535d19391a748c5d898336`, file `Files/Languages/ChineseSimplified.isl`, retrieved 2026-10-28. Maintainer: Zhenghan Yang (Kira). The original message headers are preserved; the accompanying Inno Setup license is in `packaging/windows/languages/LICENSE.Inno-Setup.txt`.

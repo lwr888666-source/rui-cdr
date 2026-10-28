@@ -51,7 +51,7 @@ jobs:
         shell: pwsh
         run: ./scripts/tests/check-windows-package.tests.ps1
       - run: cargo test --locked --workspace
-      - run: cargo clippy --locked --workspace --exclude tracedraw -- -D warnings
+      - run: cargo clippy --locked --workspace --exclude rui -- -D warnings
 
   build:
     needs: test
@@ -107,7 +107,7 @@ jobs:
           cargo install cargo-deb
 
       - name: Build
-        run: cargo build --locked --release --target ${{ matrix.target }} -p tracedraw -p tracedraw-cli
+        run: cargo build --locked --release --target ${{ matrix.target }} -p rui -p rui-cli
 
       # The main window, after the splash screen and without it, can be
       # maximized and resized under a window manager (see
@@ -116,7 +116,24 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get install -y xvfb openbox x11-utils libgl1-mesa-dri libxkbcommon-x11-0
-          bash scripts/visual/window_check.sh target/${{ matrix.target }}/release/tracedraw
+          bash scripts/visual/window_check.sh target/${{ matrix.target }}/release/rui
+
+      - name: Rui identity and interaction checks
+        if: matrix.name == 'linux-x86_64'
+        env:
+          RUI_BINARY: ${{ github.workspace }}/target/${{ matrix.target }}/release/rui
+        run: |
+          sudo apt-get install -y python3-xlib python3-pil imagemagick fonts-noto-cjk
+          RUI_TEST_LANGUAGE=zh-CN TRACEDRAW_SHOTS="$RUNNER_TEMP/rui-visual/identity" bash scripts/visual/run.sh scripts/visual/rui_identity_zh.py
+          TRACEDRAW_SHOTS="$RUNNER_TEMP/rui-visual/smoke" bash scripts/visual/run.sh scripts/visual/smoke_edit.py
+          MONKEY_SEED=20261028 MONKEY_STEPS=50 TRACEDRAW_SHOTS="$RUNNER_TEMP/rui-visual/monkey" bash scripts/visual/run.sh scripts/visual/monkey.py
+
+      - name: UI check screenshots
+        if: always() && matrix.name == 'linux-x86_64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-checks
+          path: ${{ runner.temp }}/rui-visual
 
       # Windows code signing, see docs/code-signing.md. Release builds (v*
       # tags) are signed once a provider is set up in the repository's
@@ -154,13 +171,13 @@ jobs:
           signing-account-name: ${{ vars.ARTIFACT_SIGNING_ACCOUNT }}
           certificate-profile-name: ${{ vars.ARTIFACT_SIGNING_PROFILE }}
           files: |
-            ${{ github.workspace }}\target\${{ matrix.target }}\release\tracedraw.exe
-            ${{ github.workspace }}\target\${{ matrix.target }}\release\tracedraw-cli.exe
+            ${{ github.workspace }}\target\${{ matrix.target }}\release\rui.exe
+            ${{ github.workspace }}\target\${{ matrix.target }}\release\rui-cli.exe
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
-          description: TraceDraw
-          description-url: https://github.com/igtoth/tracedraw
+          description: Rui
+          description-url: https://github.com/lwr888666-source/rui-cdr
 
       - name: Programs to sign (SignPath)
         id: unsigned-programs
@@ -169,8 +186,8 @@ jobs:
         with:
           name: unsigned-programs
           path: |
-            target/${{ matrix.target }}/release/tracedraw.exe
-            target/${{ matrix.target }}/release/tracedraw-cli.exe
+            target/${{ matrix.target }}/release/rui.exe
+            target/${{ matrix.target }}/release/rui-cli.exe
           if-no-files-found: error
           retention-days: 1
 
@@ -201,12 +218,12 @@ jobs:
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force dist | Out-Null
           $src = "target\${{ matrix.target }}\release"
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DVersion=${{ steps.ver.outputs.version }} /DSrcDir="$PWD\$src" packaging\windows\tracedraw.iss
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DVersion=${{ steps.ver.outputs.version }} /DSrcDir="$PWD\$src" packaging\windows\rui.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed: $LASTEXITCODE" }
           # The portable zip carries the settings folder, so it keeps its
           # preferences beside the program and writes nothing to %APPDATA%.
           Copy-Item -Recurse -Force packaging\windows\portable\rui-settings "$src\rui-settings"
-          Compress-Archive -Path "$src\tracedraw.exe","$src\tracedraw-cli.exe","$src\rui-settings",README.md,LICENSE-MIT,LICENSE-APACHE -DestinationPath "dist\tracedraw-${{ steps.ver.outputs.version }}-windows-x86_64-portable.zip"
+          Compress-Archive -Path "$src\rui.exe","$src\rui-cli.exe","$src\rui-settings",README.md,ATTRIBUTION.md,LICENSE-MIT,LICENSE-APACHE -DestinationPath "dist\Rui-${{ steps.ver.outputs.version }}-windows-x86_64-portable.zip"
           ./scripts/check-windows-package.ps1 -Version '${{ steps.ver.outputs.version }}' -Directory dist -Install
 
       # The Microsoft Store package (the Store signs it). Attached to the
@@ -239,8 +256,8 @@ jobs:
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
-          description: rui-ColeSDK Setup
-          description-url: https://github.com/igtoth/tracedraw
+          description: Rui Setup
+          description-url: https://github.com/lwr888666-source/rui-cdr
 
       - name: Installer to sign (SignPath)
         id: unsigned-installer
@@ -277,26 +294,26 @@ jobs:
           mkdir -p dist
           arch=$([[ "${{ matrix.target }}" == aarch64* ]] && echo arm64 || echo x86_64)
           bash packaging/macos/build-dmg.sh "${{ steps.ver.outputs.version }}" "target/${{ matrix.target }}/release" "$arch"
-          rm -rf dist/TraceDraw.app
+          rm -rf dist/Rui.app
 
       - name: Package (Linux)
         if: runner.os == 'Linux'
         run: |
           mkdir -p dist
-          cargo deb -p tracedraw --target ${{ matrix.target }} --no-build --deb-version "${{ steps.ver.outputs.version }}" -o dist/
+          cargo deb -p rui --target ${{ matrix.target }} --no-build --deb-version "${{ steps.ver.outputs.version }}" -o dist/
           arch=$([[ "${{ matrix.target }}" == aarch64* ]] && echo arm64 || echo x86_64)
           bash packaging/linux/build-appimage.sh "${{ steps.ver.outputs.version }}" "target/${{ matrix.target }}/release" "$arch"
           rm -f dist/linuxdeploy.AppImage
-          tar -C "target/${{ matrix.target }}/release" -czf "dist/tracedraw-${{ steps.ver.outputs.version }}-linux-$arch.tar.gz" tracedraw tracedraw-cli
+          tar -C "target/${{ matrix.target }}/release" -czf "dist/Rui-${{ steps.ver.outputs.version }}-linux-$arch.tar.gz" rui rui-cli
 
       - uses: actions/upload-artifact@v4
         with:
-          name: tracedraw-${{ matrix.name }}
+          name: Rui-${{ matrix.name }}
           path: dist/*
           if-no-files-found: error
 
   # The browser build: WebAssembly and WebGL 2, published to GitHub Pages
-  # and attached to the releases as tracedraw-<version>-web.zip.
+  # and attached to the releases as rui-<version>-web.zip.
   web:
     needs: test
     runs-on: ubuntu-latest
@@ -348,25 +365,25 @@ jobs:
           echo "$RUNNER_TEMP/binaryen-${BINARYEN}/bin" >> "$GITHUB_PATH"
 
       - name: Build
-        run: cargo build --locked --target wasm32-unknown-unknown --profile web -p tracedraw
+        run: cargo build --locked --target wasm32-unknown-unknown --profile web -p rui
 
       - name: Page
         run: |
           mkdir -p site dist
-          wasm-bindgen --target web --no-typescript --out-dir site target/wasm32-unknown-unknown/web/tracedraw.wasm
+          wasm-bindgen --target web --no-typescript --out-dir site target/wasm32-unknown-unknown/web/rui.wasm
           # Optimise for size and drop the name, debug and producer
           # sections before the size is measured.
-          wasm-opt -Oz --strip-debug --strip-producers -o site/tracedraw_bg.wasm site/tracedraw_bg.wasm
+          wasm-opt -Oz --strip-debug --strip-producers -o site/rui_bg.wasm site/rui_bg.wasm
           cp web/FONTS.md site/
           # The page with the module's size (the download shows its progress)
           # and the version.
-          size=$(wc -c < site/tracedraw_bg.wasm | tr -d ' ')
+          size=$(wc -c < site/rui_bg.wasm | tr -d ' ')
           sed -e "s/data-wasm-size=\"0\"/data-wasm-size=\"$size\"/" -e "s/@VERSION@/${{ steps.ver.outputs.version }}/" \
               web/index.html > site/index.html
           grep -q "data-wasm-size=\"$size\"" site/index.html
           if grep -q "@VERSION@" site/index.html; then exit 1; fi
-          cp assets/icon/tracedraw-256.png site/icon-256.png
-          (cd site && zip -r "../dist/tracedraw-${{ steps.ver.outputs.version }}-web.zip" .)
+          cp assets/icon/rui-256.png site/icon-256.png
+          (cd site && zip -r "../dist/Rui-${{ steps.ver.outputs.version }}-web.zip" .)
 
       # The font folder of the published page (web/fonts.txt): free fonts
       # the page fetches the first time a drawing's text needs them, so
@@ -393,7 +410,7 @@ jobs:
 
       # The browser version is published on the project's page, not as a
       # download: the folder is kept with the run only (its name does not
-      # match the release's tracedraw-* artifacts).
+      # match the release's rui-* artifacts).
       - uses: actions/upload-artifact@v4
         with:
           name: web-site
@@ -441,7 +458,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-          pattern: tracedraw-*
+          pattern: Rui-*
           merge-multiple: true
       - name: Release notes
         shell: bash

@@ -60,7 +60,7 @@ pub fn page_to_eps(doc: &Document, page_index: usize) -> String {
     let h = page.size.height * MM_PT;
     let mut out = String::new();
     let _ = writeln!(out, "%!PS-Adobe-3.0 EPSF-3.0");
-    let _ = writeln!(out, "%%Creator: TraceDraw");
+    let _ = writeln!(out, "%%Creator: Rui");
     let _ = writeln!(out, "%%Title: {}", doc.title.replace(['\n', '\r'], " "));
     let _ = writeln!(
         out,
@@ -89,7 +89,7 @@ pub fn document_to_ps(doc: &Document) -> String {
     });
     let mut out = String::new();
     let _ = writeln!(out, "%!PS-Adobe-3.0");
-    let _ = writeln!(out, "%%Creator: TraceDraw");
+    let _ = writeln!(out, "%%Creator: Rui");
     let _ = writeln!(out, "%%Title: {}", doc.title.replace(['\n', '\r'], " "));
     let _ = writeln!(out, "%%Pages: {}", doc.pages.len());
     let _ = writeln!(

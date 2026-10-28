@@ -1,12 +1,12 @@
 [package]
-name = "tracedraw-cli"
+name = "rui-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Headless rui-ColeSDK: inspect .cdr files and convert documents"
+description = "Rui command line: inspect .cdr files and convert documents"
 
 [[bin]]
-name = "tracedraw-cli"
+name = "rui-cli"
 path = "src/main.rs"
 
 [dependencies]

@@ -1,4 +1,4 @@
-//! The TraceDraw look shared by the About box and the splash screen: a
+//! The Rui look shared by the About box and the splash screen: a
 //! deep blue gradient, faint light blue curves with selected nodes (a path
 //! being edited), the application icon and the name in two colours.
 
@@ -11,6 +11,23 @@ pub const TOP_RIGHT: Color32 = Color32::from_rgb(0x1A, 0x31, 0x58);
 pub const BOTTOM: Color32 = Color32::from_rgb(0x0E, 0x19, 0x2D);
 pub const CURVE: Color32 = Color32::from_rgb(0x5C, 0xAE, 0xFF);
 pub const TAGLINE: Color32 = Color32::from_rgb(0xC9, 0xD7, 0xEC);
+pub const NAME: &str = "Rui";
+
+/// Give the operating system the same name and artwork used inside Rui.
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+pub fn window_viewport(viewport: egui::ViewportBuilder) -> egui::ViewportBuilder {
+    let viewport = viewport.with_title(NAME);
+    let Ok(image) = image::load_from_memory(include_bytes!("../../../../assets/icon/rui-128.png")) else {
+        log::warn!("could not decode the Rui window icon");
+        return viewport;
+    };
+    let image = image.to_rgba8();
+    viewport.with_icon(Arc::new(egui::IconData {
+        width: image.width(),
+        height: image.height(),
+        rgba: image.into_raw(),
+    }))
+}
 
 /// The 128 px application icon, decoded once per session.
 pub fn icon(ctx: &Context) -> Option<TextureHandle> {
@@ -26,7 +43,7 @@ pub fn icon(ctx: &Context) -> Option<TextureHandle> {
 
 /// The embedded 128 px icon as an egui image.
 pub(crate) fn icon_image() -> Option<egui::ColorImage> {
-    let bytes = include_bytes!("../../../../assets/icon/tracedraw-128.png");
+    let bytes = include_bytes!("../../../../assets/icon/rui-128.png");
     let img = image::load_from_memory(bytes).ok()?.to_rgba8();
     let (w, h) = (img.width() as usize, img.height() as usize);
     Some(egui::ColorImage::from_rgba_unmultiplied(
@@ -198,6 +215,38 @@ mod tests {
     fn the_embedded_icon_decodes() {
         let img = icon_image().expect("icon decodes");
         assert_eq!(img.size, [128, 128]);
+    }
+
+    #[test]
+    fn the_native_window_uses_the_rui_name_and_our_icon() {
+        let viewport = window_viewport(egui::ViewportBuilder::default());
+        assert_eq!(viewport.title.as_deref(), Some("Rui"));
+        let icon = viewport.icon.expect("our icon is set explicitly");
+        let image = image::load_from_memory(include_bytes!("../../../../assets/icon/rui-128.png"))
+            .expect("our icon decodes")
+            .to_rgba8();
+        assert_eq!((icon.width, icon.height), image.dimensions());
+        assert_eq!(icon.rgba, image.into_raw());
+    }
+
+    #[test]
+    fn the_chinese_welcome_window_uses_rui_and_keeps_its_title_cached() {
+        crate::i18n::with_thread_language("zh-CN", || {
+            let ctx = crate::theme::ui_context();
+            let mut app = crate::app::App::headless();
+            app.show_welcome = true;
+            let input = || egui::RawInput {
+                screen_rect: Some(Rect::from_min_size(Pos2::ZERO, Vec2::new(1400.0, 900.0))),
+                ..Default::default()
+            };
+            let mut first = ctx.run_ui(input(), |ui| crate::ui::root(&mut app, ui));
+            first.textures_delta.clear();
+            let commands = &first.viewport_output[&egui::ViewportId::ROOT].commands;
+            assert!(commands.iter().any(|c| matches!(c, egui::ViewportCommand::Title(title) if title.starts_with("Rui - ") && title.contains("欢迎"))));
+            let mut next = ctx.run_ui(input(), |ui| crate::ui::root(&mut app, ui));
+            next.textures_delta.clear();
+            assert!(!next.viewport_output[&egui::ViewportId::ROOT].commands.iter().any(|c| matches!(c, egui::ViewportCommand::Title(_))));
+        });
     }
 
     #[test]

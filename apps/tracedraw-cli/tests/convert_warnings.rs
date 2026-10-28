@@ -13,7 +13,7 @@ fn converting_a_cdr_file_reports_the_reader_warnings() {
     let input = dir.join("wide.cdr");
     std::fs::write(&input, tracedraw_cdr::write::document_to_cdr(&doc)).expect("written");
     let output = dir.join("wide.pdf");
-    let out = Command::new(env!("CARGO_BIN_EXE_tracedraw-cli"))
+    let out = Command::new(env!("CARGO_BIN_EXE_rui-cli"))
         .arg("convert")
         .arg(&input)
         .arg(&output)

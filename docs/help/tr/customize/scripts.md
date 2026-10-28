@@ -9,7 +9,7 @@ menu.tools.scripts_docker]]) JavaScript ile yazılır.
 
 ## Betik yazma ve çalıştırma {#run}
 
-Bir betik TraceDraw'un nesneleriyle çalışır: `Application`,
+Bir betik Rui'un nesneleriyle çalışır: `Application`,
 `ActiveDocument`, `ActivePage`, `ActiveLayer` ve şekiller, dolgular,
 anahatlar, renkler, eğriler ve efektler. Örneğin:
 
@@ -45,24 +45,24 @@ düğmesine tıklayın; [[docker.script_filters]] yüklü filtreleri
 
 ## YZ asistanları (MCP) {#mcp}
 
-TraceDraw Model Context Protocol'ü konuşur; böylece bilgisayarınızdaki YZ
+Rui Model Context Protocol'ü konuşur; böylece bilgisayarınızdaki YZ
 asistanları çizimleri açabilir, düzenleyebilir, inceleyebilir, dışa
 aktarabilir ve kaydedebilir:
 
-- `tracedraw --mcp`, TraceDraw'u bir asistan için penceresiz çalıştırır.
+- `tracedraw --mcp`, Rui'u bir asistan için penceresiz çalıştırır.
 - Bir asistanın pencerenizde açık olan çizimi düzenlemesine izin vermek
   için [[menu.tools > menu.tools.options > menu.tools.options_global]]
   altındaki [[options.general]] sayfasında [[options.mcp_window]]
   seçeneğini açın ve asistana komut olarak `tracedraw --mcp-window` verin.
   Her değişiklik geri alabileceğiniz bir geri alma adımıdır. Yalnızca
-  bilgisayarınızda bulunan ve TraceDraw'un yazdığı gizli belirteci taşıyan
+  bilgisayarınızda bulunan ve Rui'un yazdığı gizli belirteci taşıyan
   programlar bağlanabilir.
 
 ## Komut satırı aracı {#cli}
 
 Her indirmede, toplu işler için çizimleri programı açmadan biçimler arasında
-dönüştüren `tracedraw-cli` de bulunur.
+dönüştüren `rui-cli` de bulunur.
 
 ## Makrolar {#macros}
 
-TraceDraw, çizim programları için yazılmış VBA makro projelerini çalıştırır (masaüstü sürümü). [[menu.tools > menu.tools.macros > menu.tools.macros_load]] bir proje (`.gms`) veya modül dosyaları (`.bas`, `.cls`, `.frm`) ekler; projeler saklanır ve açılışta yüklenir. [[docker.macros]] paneli makroları listeler: birine çift tıklayın veya çalıştırmak için [[menu.tools > menu.tools.macros > menu.tools.macros_run]] (<kbd>Alt+Shift+F8</kbd>) kullanın. Makronun formları, ileti ve giriş kutuları ekranda görünür, <kbd>Esc</kbd> veya [[menu.tools > menu.tools.macros > menu.tools.macros_stop]] onu durdurur ve bir çalıştırmanın değiştirdiği her şey tek bir geri alma adımıdır. [[menu.tools > menu.tools.macros > menu.tools.macro_editor]] (<kbd>Alt+F11</kbd>) kodu gösterir ve düzenler. Windows işlevlerini veya düzenleyicinin kendi nesne modelini çağıran makrolar çalışmaz.
+Rui, çizim programları için yazılmış VBA makro projelerini çalıştırır (masaüstü sürümü). [[menu.tools > menu.tools.macros > menu.tools.macros_load]] bir proje (`.gms`) veya modül dosyaları (`.bas`, `.cls`, `.frm`) ekler; projeler saklanır ve açılışta yüklenir. [[docker.macros]] paneli makroları listeler: birine çift tıklayın veya çalıştırmak için [[menu.tools > menu.tools.macros > menu.tools.macros_run]] (<kbd>Alt+Shift+F8</kbd>) kullanın. Makronun formları, ileti ve giriş kutuları ekranda görünür, <kbd>Esc</kbd> veya [[menu.tools > menu.tools.macros > menu.tools.macros_stop]] onu durdurur ve bir çalıştırmanın değiştirdiği her şey tek bir geri alma adımıdır. [[menu.tools > menu.tools.macros > menu.tools.macro_editor]] (<kbd>Alt+F11</kbd>) kodu gösterir ve düzenler. Windows işlevlerini veya düzenleyicinin kendi nesne modelini çağıran makrolar çalışmaz.

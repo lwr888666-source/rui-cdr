@@ -300,7 +300,7 @@ fn watch_chorded_right_press() {
     watch.forget();
 }
 
-/// Start the editor on the page's `<canvas id="tracedraw">`.
+/// Start the editor on the page's `<canvas id="rui">`.
 pub fn start() {
     eframe::WebLogger::init(log::LevelFilter::Info).ok();
     guard_shortcuts();
@@ -313,7 +313,7 @@ pub fn start() {
             return;
         };
         let Some(canvas) = document
-            .get_element_by_id("tracedraw")
+            .get_element_by_id("rui")
             .and_then(|e| e.dyn_into::<web_sys::HtmlCanvasElement>().ok())
         else {
             log::error!("no <canvas id=\"tracedraw\"> on the page");
@@ -336,10 +336,10 @@ pub fn start() {
                     // The splash says so and the reason shows under it,
                     // keeping the page's links to the downloads.
                     let text = format!(
-                        "TraceDraw could not start: {e:?}. A browser with WebGL 2 is needed."
+                        "Rui could not start: {e:?}. A browser with WebGL 2 is needed."
                     );
                     if let Some(status) = document.get_element_by_id("loading-status") {
-                        status.set_inner_html("TraceDraw could not start");
+                        status.set_inner_html("Rui could not start");
                     }
                     if let Some(bar) = document.get_element_by_id("loading-bar") {
                         bar.set_attribute("fill", "#e0533d").ok();

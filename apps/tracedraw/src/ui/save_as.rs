@@ -1,7 +1,7 @@
 //! File > Save As (and Save of a drawing without a file): the Save
 //! Drawing dialog. One window chooses the folder (path bar, Up, New folder,
 //! shortcuts and the folder's contents), the file name, the type
-//! (TraceDraw or `.cdr`), the version of either (the newest first), whether
+//! (Rui or `.cdr`), the version of either (the newest first), whether
 //! the CMYK profile goes along, and the document's title,
 //! subject and rating, and asks before replacing a file. In a browser,
 //! where every save is a download, it keeps the name, type, version and
@@ -39,7 +39,7 @@ pub struct SaveAsState {
     pub dir_text: String,
     /// The file name, with or without its extension.
     pub name: String,
-    /// `.cdr` rather than TraceDraw.
+    /// `.cdr` rather than Rui.
     pub cdr: bool,
     pub version: u16,
     /// The `.tdraw` format version.
@@ -436,14 +436,14 @@ pub fn tdraw_version_choices() -> Vec<u32> {
     (0..=TDRAW_FORMAT_VERSION).rev().collect()
 }
 
-/// "v2 (TraceDraw 1.0)": the format version and the release that first
+/// "v2 (Rui 1.0)": the format version and the release that first
 /// wrote it; just "v0" while it is the only one.
 pub fn tdraw_version_label(version: u32) -> String {
     if TDRAW_FORMAT_VERSION == 0 {
         return format!("v{version}");
     }
     let release = TDRAW_RELEASES.get(version as usize).copied().unwrap_or("?");
-    format!("v{version} (TraceDraw {release})")
+    format!("v{version} (Rui {release})")
 }
 
 /// The `.cdr` versions offered, newest first: from the oldest checked to
@@ -926,7 +926,7 @@ fn fields(ui: &mut Ui, st: &mut SaveAsState) {
                 if cdr {
                     tr("file.cdr_files")
                 } else {
-                    "TraceDraw (*.tdraw)".to_string()
+                    "Rui (*.tdraw)".to_string()
                 }
             },
             260.0,
@@ -1151,7 +1151,7 @@ mod tests {
                 .map(|e| e.name.clone())
                 .collect::<Vec<_>>()
         };
-        assert_eq!(names(st), vec!["sub".to_string()], "TraceDraw files only");
+        assert_eq!(names(st), vec!["sub".to_string()], "Rui files only");
         st.set_cdr(true);
         assert_eq!(names(st), vec!["sub".to_string(), "old.cdr".into()]);
         assert!(st.name.ends_with(".cdr"));
@@ -1194,7 +1194,7 @@ mod tests {
         let mut st = st.clone();
         assert!(app.finish_save_as(&mut st));
         assert_eq!(version_of(&dir.join("old.cdr")), Some(15));
-        // TraceDraw files.
+        // Rui files.
         app.save_as_dialog();
         let st = state(&mut app);
         st.set_cdr(false);
@@ -1391,7 +1391,7 @@ mod tests {
     fn a_drawing_opened_from_a_cdr_file_keeps_its_version() {
         let dir = temp_dir("save-as-keep");
         let doc = drawing().engine.document().clone();
-        // A version TraceDraw saves in is kept: Save asks where (an opened
+        // A version Rui saves in is kept: Save asks where (an opened
         // .cdr is never overwritten without Save As) and offers it.
         let kept = dir.join("kept.cdr");
         std::fs::write(

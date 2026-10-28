@@ -31,7 +31,7 @@ pub fn document_to_html(doc: &Document) -> String {
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
     );
     let _ = writeln!(out, "<title>{}</title>", escape(&title));
-    let _ = writeln!(out, "<meta name=\"generator\" content=\"TraceDraw\">");
+    let _ = writeln!(out, "<meta name=\"generator\" content=\"Rui\">");
     let _ = writeln!(
         out,
         "<style>\n\

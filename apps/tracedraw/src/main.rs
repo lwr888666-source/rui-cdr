@@ -224,7 +224,7 @@ fn main() -> eframe::Result<()> {
         settings.save();
     }
     i18n::set_language(&if settings.language.is_empty() {
-        "zh-CN".to_string()
+        i18n::system_language().to_string()
     } else {
         settings.language.clone()
     });
@@ -272,7 +272,7 @@ fn main() -> eframe::Result<()> {
     );
     let (renderer, wgpu_options) = gpu::options(mode, &settings.gpu_adapter);
     let options = eframe::NativeOptions {
-        viewport,
+        viewport: ui::brand::window_viewport(viewport),
         centered: splash,
         renderer,
         wgpu_options,

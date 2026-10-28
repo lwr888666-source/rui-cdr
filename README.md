@@ -33,7 +33,7 @@
 2. **桌面矢量编辑 GUI (`apps/tracedraw`)**
    - 界面名称：**Rui**，启动界面：墨韵国风专属欢迎画面，命令与包名：**rui-cdr**。
    - 默认开启简体中文（`zh-CN`），全套快捷键、渐变填充、调和（Blend）、封套扭曲（Envelope）、透视、对齐与分布。
-3. **无头命令行工具 (`apps/tracedraw-cli` -> `rui-cdr-cli`)**
+3. **无头命令行工具 (`apps/rui-cli` -> `rui-cdr-cli`)**
    - `rui-cdr-cli info <file.cdr>`：结构化输出矢量图元、文本及尺寸信息。
    - `rui-cdr-cli convert <in.cdr> <out.png|out.svg|out.pdf|out.dxf>`：批量自动化格式转换。
 4. **AI 与自动化赋能 (`scripts/ai/`)**
@@ -87,7 +87,7 @@ python scripts/ai/cdr_ai_tool.py convert "input.cdr" "output.svg"
 ## 📄 许可证与开源声明 (License & Attribution)
 
 - **本项目版权**：Copyright &copy; 2026 rui.
-- **上游基础**：本项目基于开源项目 TraceDraw 进行重塑与二次开发。
+- **上游基础**：本项目基于开源项目 Rui 进行重塑与二次开发。
 - **开源协议**：本项目依据 **MIT 协议** 或 **Apache-2.0 协议** 双重开源授权。
-- 原始代码版权声明：Copyright &copy; 2026 Ighor Toth and the TraceDraw contributors.
+- 原始代码版权声明：Copyright &copy; 2026 Ighor Toth and the Rui contributors.
 - 第三方字体、图标及依赖资源遵循各自对应的开源许可证，完整信息保留于 `ATTRIBUTION.md`。

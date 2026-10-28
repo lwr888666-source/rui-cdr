@@ -202,7 +202,27 @@ pub fn system_language() -> &'static str {
     let env = std::env::var("LC_ALL")
         .or_else(|_| std::env::var("LANG"))
         .unwrap_or_default();
+    if env.is_empty() {
+        #[cfg(target_os = "windows")]
+        if let Some(locale) = windows_locale() {
+            return language_for_locale(&locale);
+        }
+    }
     language_for_locale(&env)
+}
+
+/// Desktop shortcuts on Windows normally have no LANG environment variable.
+#[cfg(target_os = "windows")]
+fn windows_locale() -> Option<String> {
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn GetUserDefaultLocaleName(name: *mut u16, length: i32) -> i32;
+    }
+    let mut name = [0u16; 85];
+    // The API writes at most the supplied capacity, including a trailing NUL.
+    let length = unsafe { GetUserDefaultLocaleName(name.as_mut_ptr(), name.len() as i32) };
+    let length = usize::try_from(length).ok()?.checked_sub(1)?;
+    String::from_utf16(name.get(..length)?).ok()
 }
 
 /// The interface language for a locale such as `pt_BR.UTF-8`, `zh_TW` or

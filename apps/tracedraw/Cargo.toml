@@ -1,5 +1,5 @@
 [package]
-name = "tracedraw"
+name = "rui"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -9,7 +9,7 @@ homepage.workspace = true
 description = "Rui: Vector Illustration Editor by CoreSDK"
 
 [[bin]]
-name = "tracedraw"
+name = "rui"
 path = "src/main.rs"
 
 [build-dependencies]
@@ -76,8 +76,8 @@ lopdf = { version = "0.36", default-features = false }
 tracedraw-core = { workspace = true, features = ["test-profiles"] }
 
 [package.metadata.deb]
-name = "tracedraw"
-maintainer = "TraceDraw contributors <noreply@tracedraw.dev>"
+name = "rui"
+maintainer = "Rui contributors <lwr888666-source@users.noreply.github.com>"
 copyright = "2026, Ighor Toth and the TraceDraw contributors"
 license-file = ["../../LICENSE-MIT", "0"]
 extended-description = "Open-source vector illustration editor with a classic desktop workflow and a .cdr reader."
@@ -85,9 +85,9 @@ section = "graphics"
 priority = "optional"
 depends = "$auto"
 assets = [
-    ["target/release/tracedraw", "usr/bin/", "755"],
-    ["target/release/tracedraw-cli", "usr/bin/", "755"],
-    ["../../packaging/linux/tracedraw.desktop", "usr/share/applications/", "644"],
-    ["../../assets/icon/tracedraw-256.png", "usr/share/icons/hicolor/256x256/apps/tracedraw.png", "644"],
-    ["../../README.md", "usr/share/doc/tracedraw/README", "644"],
+    ["target/release/rui", "usr/bin/", "755"],
+    ["target/release/rui-cli", "usr/bin/", "755"],
+    ["../../packaging/linux/rui.desktop", "usr/share/applications/", "644"],
+    ["../../assets/icon/rui-256.png", "usr/share/icons/hicolor/256x256/apps/rui.png", "644"],
+    ["../../README.md", "usr/share/doc/rui/README", "644"],
 ]

@@ -432,17 +432,17 @@ soluk görünür. Menüler kendi kısayollarınızı gösterebilir; bkz.
 
 | Komut | Bkz. |
 |---|---|
-| [[menu.help.help_topics]] | [TraceDraw Yardımına hoş geldiniz](../index.md#in-the-app) |
-| [[menu.help.product_help]] | [TraceDraw Yardımına hoş geldiniz](../index.md#in-the-app) |
-| [[menu.help.welcome_screen]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
-| [[menu.help.video_tutorials]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.help_topics]] | [Rui Yardımına hoş geldiniz](../index.md#in-the-app) |
+| [[menu.help.product_help]] | [Rui Yardımına hoş geldiniz](../index.md#in-the-app) |
+| [[menu.help.welcome_screen]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.video_tutorials]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |
 | [[menu.help.hints]] | [The Hints panel](../get-started/hints.md) |
-| [[menu.help.quick_start_guide]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
-| [[menu.help.user_guide]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.quick_start_guide]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.user_guide]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |
 | [[menu.help.whats_new]] | [Yenilikler](../welcome/whats-new.md) |
 | [[menu.help.highlight_whats_new]] | [Yenilikler](../welcome/whats-new.md) |
-| [[menu.help.updates]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
-| [[menu.help.message_settings]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
-| [[menu.help.community]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
-| [[menu.help.support]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
-| [[menu.help.about]] | [TraceDraw hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.updates]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.message_settings]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.community]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.support]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |
+| [[menu.help.about]] | [Rui hakkında ve güncellemeler](../welcome/about-and-updates.md) |

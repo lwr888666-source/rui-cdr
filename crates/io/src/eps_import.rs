@@ -5,7 +5,7 @@
 //! arithmetic, strings, arrays) is complete enough to run the prologs that
 //! drawing programs emit, so their private operators (defined with `def`
 //! in the file) work without special cases. The graphics operators build
-//! paths, fills, outlines, images, text and shadings into TraceDraw
+//! paths, fills, outlines, images, text and shadings into Rui
 //! objects. Fonts are not rasterised: `show` makes a text object with the
 //! font's name and size, and embedded Type 1 programs (`eexec`) are
 //! skipped. Everything is bounded (operations, recursion, sizes) and no
@@ -2421,7 +2421,7 @@ impl<'a> Interp<'a> {
             | "currentcolorrendering" => self.push(Obj::Dict(mk_dict())),
             "usertime" | "realtime" => self.push(Obj::Int((self.ops % 1_000_000) as i64)),
             "version" => self.push(mk_str(b"3010")),
-            "product" => self.push(mk_str(b"TraceDraw")),
+            "product" => self.push(mk_str(b"Rui")),
             "revision" | "serialnumber" => self.push(Obj::Int(1)),
             "languagelevel" => self.push(Obj::Int(3)),
             "vmstatus" => {

@@ -1,6 +1,6 @@
 //! The Shelf (Window > Dockers > Shelf): objects kept apart from any
 //! drawing, to place in this drawing or another one, now or after
-//! TraceDraw restarts. Each item holds copies of the objects added
+//! Rui restarts. Each item holds copies of the objects added
 //! together, with the object styles they link to (a placed object keeps
 //! its link only where the drawing has the same style) and every symbol
 //! instance turned into the symbol's objects, so that an item never
@@ -50,7 +50,7 @@ pub struct ShelfItem {
     pub colors: Vec<tracedraw_core::Color>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub color_styles: Vec<tracedraw_core::document::ColorStyle>,
-    /// Tells items apart while TraceDraw runs (thumbnails, selection).
+    /// Tells items apart while Rui runs (thumbnails, selection).
     #[serde(skip)]
     pub uid: u64,
 }
@@ -145,7 +145,7 @@ pub fn items_from_bytes(bytes: &[u8]) -> Option<Vec<ShelfItem>> {
     }
     if file.version > VERSION {
         log::warn!(
-            "the shelf was written by a newer TraceDraw (version {}); reading what this one knows",
+            "the shelf was written by a newer Rui (version {}); reading what this one knows",
             file.version
         );
     }

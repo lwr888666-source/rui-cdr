@@ -54,7 +54,7 @@ def hold(x, y, seconds=0.7):
     xtest.fake_input(d, X.ButtonRelease, 1); d.sync(); time.sleep(0.3)
 
 def alive():
-    return bool(subprocess.run(["pgrep", "-x", "tracedraw"], capture_output=True, text=True).stdout.strip())
+    return bool(subprocess.run(["pgrep", "-x", "rui"], capture_output=True, text=True).stdout.strip())
 
 def typestr(s):
     for ch in s:

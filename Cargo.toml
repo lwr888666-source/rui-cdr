@@ -19,8 +19,8 @@ version = "0.19.6"
 edition = "2021"
 authors = ["rui"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/rui/rui-cdr"
-homepage = "https://github.com/rui/rui-cdr"
+repository = "https://github.com/lwr888666-source/rui-cdr"
+homepage = "https://github.com/lwr888666-source/rui-cdr"
 rust-version = "1.89"
 
 [workspace.dependencies]

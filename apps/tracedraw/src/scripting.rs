@@ -292,7 +292,7 @@ const Application = {
   get ActiveShape() { const s = new Document().Selection; return s.Count ? s.Item(1) : null; },
   get ActiveSelection() { return new Document().Selection; },
   get Version() { return __call('version', {}).version; },
-  get Name() { return 'TraceDraw'; },
+  get Name() { return 'Rui'; },
   CreateColor: Color,
 };
 const ActiveDocument = Application.ActiveDocument;

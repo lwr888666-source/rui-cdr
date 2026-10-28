@@ -2578,7 +2578,7 @@ impl App {
         }
         #[cfg(not(target_arch = "wasm32"))]
         {
-            Some(std::env::temp_dir().join("TraceDraw"))
+            Some(std::env::temp_dir().join("Rui"))
         }
         #[cfg(target_arch = "wasm32")]
         {
@@ -5433,7 +5433,7 @@ impl App {
             .add_filter("Photoshop (*.psd, *.psb)", &["psd", "psb"])
             .add_filter(crate::i18n::tr("file.cdr_files"), &["cdr", "cdt", "cdrt"])
             .add_filter("CMX (*.cmx)", &["cmx"])
-            .add_filter("TraceDraw (*.tdraw)", &["tdraw"])
+            .add_filter("Rui (*.tdraw)", &["tdraw"])
             .pick_file(self, |app, p| app.open_path(p));
     }
 

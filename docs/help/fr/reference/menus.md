@@ -433,17 +433,17 @@ propres raccourcis ; voir
 
 | Commande | Voir |
 |---|---|
-| [[menu.help.help_topics]] | [Bienvenue dans l'Aide de TraceDraw](../index.md#in-the-app) |
-| [[menu.help.product_help]] | [Bienvenue dans l'Aide de TraceDraw](../index.md#in-the-app) |
-| [[menu.help.welcome_screen]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
-| [[menu.help.video_tutorials]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.help_topics]] | [Bienvenue dans l'Aide de Rui](../index.md#in-the-app) |
+| [[menu.help.product_help]] | [Bienvenue dans l'Aide de Rui](../index.md#in-the-app) |
+| [[menu.help.welcome_screen]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.video_tutorials]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |
 | [[menu.help.hints]] | [The Hints panel](../get-started/hints.md) |
-| [[menu.help.quick_start_guide]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
-| [[menu.help.user_guide]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.quick_start_guide]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.user_guide]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |
 | [[menu.help.whats_new]] | [Nouveautés](../welcome/whats-new.md) |
 | [[menu.help.highlight_whats_new]] | [Nouveautés](../welcome/whats-new.md) |
-| [[menu.help.updates]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
-| [[menu.help.message_settings]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
-| [[menu.help.community]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
-| [[menu.help.support]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
-| [[menu.help.about]] | [À propos de TraceDraw et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.updates]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.message_settings]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.community]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.support]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |
+| [[menu.help.about]] | [À propos de Rui et mises à jour](../welcome/about-and-updates.md) |

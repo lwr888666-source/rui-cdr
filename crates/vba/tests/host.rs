@@ -218,7 +218,7 @@ End Sub
 fn unsupported_statements_fail_at_run_time_with_a_clear_message() {
     let e = run_err("Sub Main()\n Open \"c:\\x.txt\" For Output As #1\nEnd Sub");
     assert!(
-        e.contains("Not supported in TraceDraw: Open statement"),
+        e.contains("Not supported in Rui: Open statement"),
         "{e}"
     );
     let e = run_err(

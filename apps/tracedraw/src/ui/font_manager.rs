@@ -3,7 +3,7 @@
 //! Favorites and collections) and filters on the left, and on the right a
 //! sample text, a search field and every face of the chosen library drawn
 //! in itself, grouped by family, with how it is built and whether it is
-//! installed. Fonts of added folders can be installed for TraceDraw and
+//! installed. Fonts of added folders can be installed for Rui and
 //! uninstalled; folders, installed files, Favorites and collections are
 //! kept in the settings. See docs/behavior/font-manager.md.
 
@@ -44,7 +44,7 @@ const SECTION_BLUE: Color32 = Color32::from_rgb(0x1E, 0x9B, 0xE0);
 pub struct FontManagerPrefs {
     /// Folders added to the libraries.
     pub folders: Vec<PathBuf>,
-    /// Font files installed for TraceDraw (loaded at every start).
+    /// Font files installed for Rui (loaded at every start).
     pub installed: Vec<PathBuf>,
     /// Keys ([`FaceRecord::key`]) of the favourite faces.
     pub favorites: Vec<String>,
@@ -75,7 +75,7 @@ impl FontManagerPrefs {
     }
 }
 
-/// Load the font files installed for TraceDraw and those of the added
+/// Load the font files installed for Rui and those of the added
 /// folders (at start).
 pub fn install_saved(prefs: &FontManagerPrefs) -> Vec<String> {
     install_saved_in(tracedraw_text::fonts(), prefs)
@@ -748,7 +748,7 @@ fn run(app: &mut App, st: &mut FontManagerState, a: Action) {
                 "font_manager.installed_n",
                 &[("n", &paths.len().to_string())],
             ));
-            log::info!("installed for TraceDraw: {}", added.join(", "));
+            log::info!("installed for Rui: {}", added.join(", "));
             app.font_families = fonts.available_families();
             app.save_settings();
         }
@@ -950,7 +950,7 @@ fn menu_row(
     });
 }
 
-/// A face installed for TraceDraw (not one of the system's).
+/// A face installed for Rui (not one of the system's).
 fn uninstallable(r: &FaceRecord, prefs: &FontManagerPrefs) -> bool {
     r.installed && !r.system && r.path.as_ref().is_some_and(|p| prefs.installed.contains(p))
 }

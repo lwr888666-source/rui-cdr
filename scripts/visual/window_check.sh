@@ -38,7 +38,7 @@ check() {
     for _ in $(seq 1 60); do
         sleep 0.5
         out=$(props) || continue
-        if echo "$out" | grep -q 'WM_NAME.*TraceDraw - '; then
+        if echo "$out" | grep -q 'WM_NAME.*Rui - '; then
             sleep 1
             out=$(props)
             break
