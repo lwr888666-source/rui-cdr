@@ -2,6 +2,8 @@
 ai.bar_hint = "Describe what to draw or change, then press Enter"
 ai.bar_label = "AI"
 ai.connection = "Connection"
+ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
+ai.no_changes = "No changes applied."
 ai.connection_lost = "The connection was lost before the reply came."
 ai.cut_short = "The reply was cut short; ask for less at a time."
 ai.done = "Drawn: {n} change(s)."

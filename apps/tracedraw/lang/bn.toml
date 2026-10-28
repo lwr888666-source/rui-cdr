@@ -2,6 +2,8 @@
 ai.bar_hint = "কী আঁকবেন বা বদলাবেন লিখে Enter চাপুন"
 ai.bar_label = "এআই"
 ai.connection = "সংযোগ"
+ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
+ai.no_changes = "No changes applied."
 ai.connection_lost = "উত্তর আসার আগে সংযোগ বিচ্ছিন্ন হয়েছে।"
 ai.cut_short = "উত্তর মাঝপথে কেটে গেছে; একবারে কম চান।"
 ai.done = "আঁকা হয়েছে: {n}টি পরিবর্তন।"

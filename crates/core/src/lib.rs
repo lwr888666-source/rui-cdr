@@ -28,6 +28,7 @@ pub mod live;
 pub mod nodes;
 pub mod painterly;
 pub mod paragraphs;
+pub mod path_nodes;
 pub mod patch;
 mod press;
 pub mod shadow;
@@ -88,6 +89,8 @@ pub enum Error {
     NotClipFrame(ShapeId),
     #[error("a B-spline needs two finite control points or more")]
     BadSpline,
+    #[error("invalid path node edit: {0}")]
+    PathNodeEdit(String),
     #[error("serialization error: {0}")]
     Serde(#[from] serde_json::Error),
 }

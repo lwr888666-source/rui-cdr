@@ -2,6 +2,8 @@
 ai.bar_hint = "Опишите, что нарисовать или изменить, и нажмите Enter"
 ai.bar_label = "ИИ"
 ai.connection = "Подключение"
+ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
+ai.no_changes = "No changes applied."
 ai.connection_lost = "Соединение прервалось до получения ответа."
 ai.cut_short = "Ответ оборван; просите меньше за раз."
 ai.done = "Нарисовано: изменений {n}."

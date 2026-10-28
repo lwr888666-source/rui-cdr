@@ -29,6 +29,7 @@ pub fn visible(app: &App) -> bool {
 fn state(app: &App) -> Option<(String, egui::Color32)> {
     match &app.ai.status {
         AiStatus::Idle => None,
+        AiStatus::NoChanges => Some((tr("ai.no_changes"), Tokens::text_dim())),
         AiStatus::Waiting => Some((tr("ai.waiting"), Tokens::text_dim())),
         AiStatus::Retrying => Some((tr("ai.retrying"), Tokens::text_dim())),
         AiStatus::Done(n) => Some((trf("ai.done", &[("n", &n.to_string())]), Tokens::text_dim())),
@@ -148,6 +149,7 @@ mod tests {
         let ctx = crate::theme::ui_context();
         for status in [
             AiStatus::Idle,
+            AiStatus::NoChanges,
             AiStatus::Waiting,
             AiStatus::Done(4),
             AiStatus::Listed(2),

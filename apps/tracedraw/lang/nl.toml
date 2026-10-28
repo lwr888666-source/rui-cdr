@@ -2,6 +2,8 @@
 ai.bar_hint = "Beschrijf wat je wilt tekenen of wijzigen en druk dan op Enter"
 ai.bar_label = "AI"
 ai.connection = "Verbinding"
+ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
+ai.no_changes = "No changes applied."
 ai.connection_lost = "De verbinding is verbroken voordat het antwoord binnenkwam."
 ai.cut_short = "Het antwoord is afgebroken; vraag om minder tegelijk."
 ai.done = "Getekend: {n} wijziging(en)."

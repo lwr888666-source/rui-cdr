@@ -51,6 +51,14 @@ jobs:
         shell: pwsh
         run: ./scripts/tests/check-windows-package.tests.ps1
       - run: cargo test --locked --workspace
+        env:
+          RUI_NODE_SHOTS: ${{ runner.temp }}/rui-node-shots
+      - name: Node edit rendering checks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-edit-renderings
+          path: ${{ runner.temp }}/rui-node-shots
       - run: cargo clippy --locked --workspace --exclude rui -- -D warnings
 
   build:
@@ -108,6 +116,17 @@ jobs:
 
       - name: Build
         run: cargo build --locked --release --target ${{ matrix.target }} -p rui -p rui-cli
+
+      - name: Frame benchmarks against the last release
+        if: matrix.name == 'linux-x86_64'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rui-visual/benchmarks"
+          cargo test --locked --release --target x86_64-unknown-linux-gnu -p rui -- --ignored frame_times --nocapture 2>&1 | tee "$RUNNER_TEMP/rui-visual/benchmarks/current.log"
+          git fetch --depth=1 origin refs/tags/nightly
+          git worktree add --detach "$RUNNER_TEMP/rui-baseline" FETCH_HEAD
+          CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target" cargo test --locked --release --target x86_64-unknown-linux-gnu --manifest-path "$RUNNER_TEMP/rui-baseline/Cargo.toml" -p rui -- --ignored frame_times --nocapture 2>&1 | tee "$RUNNER_TEMP/rui-visual/benchmarks/baseline.log"
 
       # The main window, after the splash screen and without it, can be
       # maximized and resized under a window manager (see
@@ -424,7 +443,7 @@ jobs:
   # GitHub Pages must be set to "GitHub Actions" (Settings > Pages); the
   # job tries to enable it and does not fail the build when it cannot.
   pages:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !github.event.repository.private
     needs: web
     runs-on: ubuntu-latest
     continue-on-error: true

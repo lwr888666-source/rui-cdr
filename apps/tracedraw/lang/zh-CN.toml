@@ -2,6 +2,8 @@
 ai.bar_hint = "描述要绘制或修改的内容，然后按 Enter"
 ai.bar_label = "AI"
 ai.connection = "连接"
+ai.context_changed = "等待期间文档、页面或选择已改变，请重新提交请求。"
+ai.no_changes = "未应用任何更改。"
 ai.connection_lost = "在收到回复之前连接已断开。"
 ai.cut_short = "回复被截断，请一次少要求一些。"
 ai.done = "已绘制：{n} 处更改。"

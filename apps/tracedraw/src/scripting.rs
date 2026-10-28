@@ -18,6 +18,9 @@
 
 pub mod vba_run;
 mod vg;
+mod path_nodes;
+#[cfg(test)]
+pub(crate) use path_nodes::tests::{node_fixture, REPAIR_SCRIPT};
 
 use crate::app::App;
 use boa_engine::{
@@ -50,6 +53,10 @@ struct HostInner {
     view: vg::AppView,
     /// The status line text a macro left (`Application.Status`).
     status: Option<String>,
+    /// The selection at evaluation start, never expanded by script selection.
+    node_scope: Vec<ShapeId>,
+    node_only: bool,
+    node_error: Option<String>,
 }
 
 /// How far a script is trusted.
@@ -268,6 +275,8 @@ class Pages {
   forEach(f) { this.ids.forEach(id => f(new Page(id))); }
 }
 class Document {
+  GetSelectedVectorGeometry() { return __call('get_selected_vector_geometry', {}); }
+  ApplyPathNodeEdits(patches) { return __call('apply_path_node_edits', {patches:patches}); }
   constructor() { this.Pages = new Pages(); }
   get Name() { return __call('doc_info', {}).title; }
   get ActivePage() { return new Page(__call('doc_info', {}).page); }
@@ -330,6 +339,15 @@ pub fn run_untrusted(
     run_with(app, src, Trust::Untrusted, label)
 }
 
+/// The AI's selected-node mode enforces coordinate-only edits throughout.
+pub fn run_node_repair(app: &mut App, src: &str, label: &'static str) -> Result<(Vec<String>, usize), String> {
+    run_host_mode(app, src, Trust::Untrusted, label, false, true)
+}
+
+pub fn selected_vector_geometry(app: &App, node_budget: usize) -> Value {
+    path_nodes::selected_geometry(app.doc(), &app.selection, node_budget)
+}
+
 fn host_for(app: &App, trust: Trust) -> HostInner {
     HostInner {
         doc: app.engine.document().clone(),
@@ -344,6 +362,9 @@ fn host_for(app: &App, trust: Trust) -> HostInner {
         vg: false,
         view: vg::AppView::of(app),
         status: None,
+        node_scope: app.selection.clone(),
+        node_only: false,
+        node_error: None,
     }
 }
 
@@ -458,14 +479,23 @@ fn run_host(
     label: &'static str,
     vg: bool,
 ) -> Result<(Vec<String>, usize), String> {
+    run_host_mode(app, src, trust, label, vg, false)
+}
+
+fn run_host_mode(
+    app: &mut App, src: &str, trust: Trust, label: &'static str, vg: bool, node_only: bool,
+) -> Result<(Vec<String>, usize), String> {
     let mut host = host_for(app, trust);
     host.vg = vg;
+    host.node_only = node_only;
     let Evaluated {
         inner,
         result,
         shown,
         ..
     } = evaluate(host, src, None, None)?;
+    if let Some(error) = &inner.node_error { return Err(error.clone()); }
+    if inner.node_only { path_nodes::validate_result(app.doc(), &inner)?; }
     let mut output = inner.output;
     match result {
         Ok(_) => {
@@ -478,16 +508,21 @@ fn run_host(
         Err(e) => {
             // The user's scripts keep what ran before the error.
             if trust == Trust::User {
-                apply(app, inner.commands, inner.selection, inner.page, label);
+                let _ = apply(app, inner.commands, inner.selection, inner.page, label);
             }
             return Err(e);
         }
     }
-    let changes = inner.commands.len();
+    let unchanged = inner.doc == *app.doc();
+    let changes = if unchanged { 0 } else if inner.node_only {
+        path_nodes::changed_nodes(app.doc(), &inner.doc, &inner.node_scope)?
+    } else { inner.commands.len() };
     if let Some(s) = inner.status {
         app.status = s;
     }
-    apply(app, inner.commands, inner.selection, inner.page, label);
+    let selection = if inner.node_only { inner.node_scope } else { inner.selection };
+    let commands = if changes == 0 { Vec::new() } else { inner.commands };
+    apply(app, commands, selection, inner.page, label)?;
     Ok((output, changes))
 }
 
@@ -579,6 +614,9 @@ fn blank_host(doc: Document, trust: Trust) -> HostInner {
         vg: false,
         view: vg::AppView::default(),
         status: None,
+        node_scope: Vec::new(),
+        node_only: false,
+        node_error: None,
     }
 }
 
@@ -667,7 +705,7 @@ pub fn run_filter_import(
             _ => None,
         })
         .collect();
-    apply(app, inner.commands, added, inner.page, "Import");
+    apply(app, inner.commands, added, inner.page, "Import")?;
     Ok(inner.output)
 }
 
@@ -882,8 +920,8 @@ pub fn finish_debug(app: &mut App, run: DebugRun) -> (Vec<String>, Option<String
         Err(_) => return (Vec::new(), Some("script host lost".into())),
     };
     let output = inner.output;
-    apply(app, inner.commands, inner.selection, inner.page, "Script");
-    (output, error)
+    let commit_error = apply(app, inner.commands, inner.selection, inner.page, "Script").err();
+    (output, error.or(commit_error))
 }
 
 fn apply(
@@ -892,17 +930,16 @@ fn apply(
     selection: Vec<ShapeId>,
     page: PageId,
     label: &'static str,
-) {
+) -> Result<(), String> {
     if !commands.is_empty() {
-        if let Err(e) = app.engine.run_batch(label, &commands) {
-            app.status = e.to_string();
-        }
+        app.engine.run_batch(label, &commands).map_err(|e| e.to_string())?;
     }
     app.page = page;
     app.selection = selection
         .into_iter()
         .filter(|id| app.doc().find_shape(*id).is_some())
         .collect();
+    Ok(())
 }
 
 fn dispatch(_this: &JsValue, args: &[JsValue], ctx: &mut Context) -> JsResult<JsValue> {
@@ -926,6 +963,7 @@ fn dispatch(_this: &JsValue, args: &[JsValue], ctx: &mut Context) -> JsResult<Js
     };
     let mut h = host.0.borrow_mut();
     let out = h.call(&method, &a).map_err(|e| {
+        if h.node_only && h.trust == Trust::Untrusted { h.node_error.get_or_insert(e.clone()); }
         boa_engine::JsError::from(boa_engine::JsNativeError::error().with_message(e))
     })?;
     Ok(JsValue::from(js_string!(out.to_string())))
@@ -947,6 +985,9 @@ fn color_from(v: &Value) -> Option<Color> {
 
 impl HostInner {
     fn run(&mut self, cmd: Command) -> Result<(), String> {
+        if self.node_only && !matches!(cmd, Command::EditPathNodes { .. }) {
+            return Err("local node repair allows only ApplyPathNodeEdits on the original selection".into());
+        }
         if self.trust == Trust::Untrusted && self.commands.len() >= UNTRUSTED_MAX_CHANGES {
             return Err(format!(
                 "more than {UNTRUSTED_MAX_CHANGES} changes; draw fewer objects"
@@ -988,6 +1029,9 @@ impl HostInner {
     }
 
     fn call(&mut self, method: &str, a: &Value) -> Result<Value, String> {
+        if matches!(method, "get_selected_vector_geometry" | "apply_path_node_edits") {
+            return self.node_api(method, a);
+        }
         if self.trust == Trust::Untrusted && FILE_METHODS.contains(&method) {
             return Err(format!("{method} is not available here: no file access"));
         }

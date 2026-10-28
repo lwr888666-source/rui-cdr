@@ -2,6 +2,8 @@
 ai.bar_hint = "Neyin çizileceğini veya değiştirileceğini açıklayın, ardından Enter tuşuna basın"
 ai.bar_label = "YZ"
 ai.connection = "Bağlantı"
+ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
+ai.no_changes = "No changes applied."
 ai.connection_lost = "Yanıt gelmeden bağlantı koptu."
 ai.cut_short = "Yanıt yarıda kesildi; tek seferde daha azını isteyin."
 ai.done = "Çizildi, değişiklik sayısı: {n}."

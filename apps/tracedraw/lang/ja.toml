@@ -2,6 +2,8 @@
 ai.bar_hint = "描く内容や変更内容を入力して Enter を押します"
 ai.bar_label = "AI"
 ai.connection = "接続"
+ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
+ai.no_changes = "No changes applied."
 ai.connection_lost = "返答が届く前に接続が切れました。"
 ai.cut_short = "返答が途中で切れました。一度に頼む量を減らしてください。"
 ai.done = "描画しました: {n} 件の変更。"

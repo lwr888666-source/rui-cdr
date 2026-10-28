@@ -2,6 +2,8 @@
 ai.bar_hint = "Jelaskan apa yang digambar atau diubah, lalu tekan Enter"
 ai.bar_label = "AI"
 ai.connection = "Koneksi"
+ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
+ai.no_changes = "No changes applied."
 ai.connection_lost = "Koneksi terputus sebelum balasan datang."
 ai.cut_short = "Balasan terpotong; minta lebih sedikit sekaligus."
 ai.done = "Digambar: {n} perubahan."

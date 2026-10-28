@@ -2,6 +2,8 @@
 ai.bar_hint = "बताएँ कि क्या बनाना या बदलना है, फिर Enter दबाएँ"
 ai.bar_label = "AI"
 ai.connection = "कनेक्शन"
+ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
+ai.no_changes = "No changes applied."
 ai.connection_lost = "उत्तर आने से पहले कनेक्शन टूट गया।"
 ai.cut_short = "उत्तर अधूरा रह गया; एक बार में कम माँगें।"
 ai.done = "बनाया गया: {n} बदलाव।"
