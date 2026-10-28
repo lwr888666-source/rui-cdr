@@ -2,8 +2,8 @@
 ai.bar_hint = "صف ما تريد رسمه أو تغييره ثم اضغط Enter"
 ai.bar_label = "ذكاء اصطناعي"
 ai.connection = "الاتصال"
-ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
-ai.no_changes = "No changes applied."
+ai.context_changed = "تغيّر المستند أو الصفحة أو التحديد أثناء الانتظار. أرسل الطلب مرة أخرى." # mt
+ai.no_changes = "لم تُطبّق أي تغييرات." # mt
 ai.connection_lost = "انقطع الاتصال قبل وصول الرد."
 ai.cut_short = "انقطع الرد قبل اكتماله؛ اطلب أقل في كل مرة."
 ai.done = "تم الرسم: {n} تغيير."

@@ -129,7 +129,7 @@ fn layout(path: &BezPath) -> Result<Vec<SubpathGeometry>> {
         }
         let sub = subs.last_mut().ok_or_else(|| bad("path must start with MoveTo"))?;
         if sub.closed { return Err(bad("a closed subpath must be followed by MoveTo")); }
-        let (kind, to, controls) = match *el {
+        let (kind, to, controls): (&str, Point, Vec<Coordinate>) = match *el {
             PathEl::LineTo(p) => ("line", p, Vec::new()),
             PathEl::QuadTo(c, p) => ("quadratic", p, vec![c.into()]),
             PathEl::CurveTo(a, b, p) => ("cubic", p, vec![a.into(), b.into()]),
@@ -179,23 +179,26 @@ pub fn geometry(doc: &Document, id: ShapeId, selected: bool) -> Result<VectorGeo
     if shape.spline.is_some() { return Err(bad("B-spline outlines must be edited through their spline control points")); }
     let t = transform(doc, id)?;
     let mut subpaths = layout(path)?;
-    let mut sub = 0usize;
-    let mut sub_of = Vec::with_capacity(path.elements().len());
-    for el in path.elements() {
-        if matches!(el, PathEl::MoveTo(_)) && !sub_of.is_empty() { sub += 1; }
-        sub_of.push(sub);
-    }
-    let nodes = crate::nodes::nodes(path).into_iter().map(|n| {
-        let subpath_index = sub_of.get(n.index).copied().unwrap_or(0);
-        if let Some(sub) = subpaths.get_mut(subpath_index) { sub.node_indices.push(n.index); }
-        NodeGeometry {
-            node_index: n.index, subpath_index, position: n.pos.into(),
-            in_handle: n.ctrl_in.map(Into::into), out_handle: n.ctrl_out.map(Into::into),
-            page_position: (t * n.pos).into(),
-            page_in_handle: n.ctrl_in.map(|p| (t * p).into()), page_out_handle: n.ctrl_out.map(|p| (t * p).into()),
+    let slots = coordinate_slots(path);
+    let mut nodes = Vec::with_capacity(slots.len());
+    let mut subpath_index = 0;
+    for (index, el) in path.elements().iter().enumerate() {
+        if matches!(el, PathEl::MoveTo(_)) && index > 0 { subpath_index += 1; }
+        let Some(slot) = slots.get(&index) else { continue; };
+        let Some(pos) = end(el) else { continue; };
+        let ctrl_in = slot.incoming.and_then(|s| slot_point(path, s));
+        let ctrl_out = slot.outgoing.and_then(|s| slot_point(path, s));
+        for p in [Some(pos), ctrl_in, ctrl_out].into_iter().flatten() { check_point(t * p)?; }
+        if let Some(sub) = subpaths.get_mut(subpath_index) { sub.node_indices.push(index); }
+        let n = crate::nodes::Node { index, pos, ctrl_in, ctrl_out, is_start: matches!(el, PathEl::MoveTo(_)) };
+        nodes.push(NodeGeometry {
+            node_index: index, subpath_index, position: pos.into(),
+            in_handle: ctrl_in.map(Into::into), out_handle: ctrl_out.map(Into::into),
+            page_position: (t * pos).into(),
+            page_in_handle: ctrl_in.map(|p| (t * p).into()), page_out_handle: ctrl_out.map(|p| (t * p).into()),
             node_type: crate::nodes::node_type_of_with(&n, &shape.node_types),
-        }
-    }).collect();
+        });
+    }
     Ok(VectorGeometry { shape_id: id, object_type: "path", selected, units: "mm", geometry_token: token(id, path, *closed, t), local_to_page: t.as_coeffs(), page_to_local: t.inverse().as_coeffs(), closed: *closed, nodes, subpaths })
 }
 
@@ -210,30 +213,37 @@ fn locked(doc: &Document, id: ShapeId) -> bool {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Slot { Anchor(usize), First(usize), Second(usize), Quadratic(usize) }
 
-fn closing_twin(path: &BezPath, index: usize) -> Option<usize> {
-    let mut start = None;
-    for (i, el) in path.elements().iter().enumerate() {
-        match el {
-            PathEl::MoveTo(_) => start = Some(i),
-            PathEl::ClosePath if start == Some(index) => {
-                let a = path.elements().get(index).and_then(end)?;
-                let last = i.checked_sub(1)?;
-                let b = path.elements().get(last).and_then(end)?;
-                return ((a - b).hypot() < 1e-9 && last != index).then_some(last);
-            }
-            _ => {}
-        }
-    }
-    None
-}
-
-fn handle_slot(path: &BezPath, index: usize, incoming: bool) -> Option<Slot> {
-    let at = if incoming { closing_twin(path, index).unwrap_or(index) } else { index.checked_add(1)? };
+fn control_slot(path: &BezPath, at: usize, incoming: bool) -> Option<Slot> {
     match path.elements().get(at)? {
         PathEl::CurveTo(..) => Some(if incoming { Slot::Second(at) } else { Slot::First(at) }),
         PathEl::QuadTo(..) => Some(Slot::Quadratic(at)),
         _ => None,
     }
+}
+
+struct NodeSlots { incoming: Option<Slot>, outgoing: Option<Slot>, twin: Option<usize> }
+
+/// Index aliases once, avoiding full-path scans for every supplied handle.
+fn coordinate_slots(path: &BezPath) -> BTreeMap<usize, NodeSlots> {
+    let mut twins = BTreeMap::new();
+    let mut aliases = BTreeSet::new();
+    let mut start = 0;
+    for (i, el) in path.elements().iter().enumerate() {
+        if matches!(el, PathEl::MoveTo(_)) { start = i; }
+        if matches!(el, PathEl::ClosePath) {
+            if let Some(last) = i.checked_sub(1).filter(|last| *last > start) {
+                if let (Some(a), Some(b)) = (path.elements().get(start).and_then(end), path.elements().get(last).and_then(end)) {
+                    if (a-b).hypot() < 1e-9 { twins.insert(start, last); aliases.insert(last); }
+                }
+            }
+        }
+    }
+    path.elements().iter().enumerate().filter_map(|(index, el)| {
+        if end(el).is_none() || aliases.contains(&index) { return None; }
+        let twin = twins.get(&index).copied();
+        Some((index, NodeSlots { incoming: control_slot(path, twin.unwrap_or(index), true),
+            outgoing: index.checked_add(1).and_then(|i| control_slot(path, i, false)), twin }))
+    }).collect()
 }
 
 fn slot_point(path: &BezPath, slot: Slot) -> Option<Point> {
@@ -266,20 +276,21 @@ pub fn prepare(doc: &Document, patches: &[PathNodePatch]) -> Result<PreparedEdit
         if patch.edits.len() > 4096 { return Err(bad("too many node edits")); }
         let shape = doc.find_shape(patch.shape_id).ok_or(Error::ShapeNotFound(patch.shape_id))?;
         let ShapeKind::Path { path, .. } = &shape.kind else { return Err(bad("object is not a path")); };
+        let slots = coordinate_slots(path);
         let t = Affine::new(info.local_to_page);
         let mut writes = BTreeMap::<Slot, Point>::new();
         let mut explicit = BTreeSet::new();
         let mut touched = BTreeSet::new();
         for edit in &patch.edits {
             if !explicit.insert(edit.node_index) { return Err(bad("duplicate node index")); }
-            if !info.nodes.iter().any(|n| n.node_index == edit.node_index) { return Err(bad(format!("no canonical node {}", edit.node_index))); }
+            let node_slots = slots.get(&edit.node_index).ok_or_else(|| bad(format!("no canonical node {}", edit.node_index)))?;
             let mut changed = false;
             for (incoming, value) in [(None, edit.position), (Some(true), edit.in_handle), (Some(false), edit.out_handle)] {
                 let Some(value) = value else { continue; };
                 check_point(value.point())?;
                 let slot = match incoming {
                     None => Slot::Anchor(edit.node_index),
-                    Some(inside) => handle_slot(path, edit.node_index, inside).ok_or_else(|| bad("the specified handle does not exist; segment types cannot be changed"))?,
+                    Some(inside) => (if inside { node_slots.incoming } else { node_slots.outgoing }).ok_or_else(|| bad("the specified handle does not exist; segment types cannot be changed"))?,
                 };
                 let old = slot_point(path, slot).ok_or_else(|| bad("invalid coordinate slot"))?;
                 // Preserve exact old bits for page-space round trips without edits.
@@ -291,22 +302,23 @@ pub fn prepare(doc: &Document, patches: &[PathNodePatch]) -> Result<PreparedEdit
                 }
                 if old != value { changed = true; }
                 if incoming.is_none() {
-                    if let Some(twin) = closing_twin(path, edit.node_index) { writes.insert(Slot::Anchor(twin), value); }
+                    if let Some(twin) = node_slots.twin { writes.insert(Slot::Anchor(twin), value); }
                 }
             }
             if changed { touched.insert(edit.node_index); }
         }
         // A quadratic has one physical control point shared by two nodes.
         // Both aliases must be explicitly addressed so no omitted handle moves.
-        for slot in writes.keys() {
-            if !matches!(slot, Slot::Quadratic(_)) { continue; }
-            for node in &info.nodes {
+        let supplied: BTreeMap<_, _> = patch.edits.iter().map(|e| (e.node_index, e)).collect();
+        for (index, node_slots) in &slots {
                 for incoming in [true, false] {
-                    if handle_slot(path, node.node_index, incoming) == Some(*slot) && !patch.edits.iter().any(|e| e.node_index == node.node_index && if incoming { e.in_handle.is_some() } else { e.out_handle.is_some() }) {
-                        return Err(bad("a quadratic handle is shared; specify both endpoint handle aliases"));
+                    let slot = if incoming { node_slots.incoming } else { node_slots.outgoing };
+                    if let Some(slot @ Slot::Quadratic(_)) = slot {
+                        if writes.contains_key(&slot) && !supplied.get(index).is_some_and(|e| if incoming { e.in_handle.is_some() } else { e.out_handle.is_some() }) {
+                            return Err(bad("a quadratic handle is shared; specify both endpoint handle aliases"));
+                        }
                     }
                 }
-            }
         }
         let mut elements = path.elements().to_vec();
         for (slot, value) in writes {
@@ -320,7 +332,7 @@ pub fn prepare(doc: &Document, patches: &[PathNodePatch]) -> Result<PreparedEdit
         }
         let next = BezPath::from_vec(elements);
         layout(&next)?;
-        if crate::nodes::nodes(&next).iter().map(|n| n.index).collect::<Vec<_>>() != info.nodes.iter().map(|n| n.node_index).collect::<Vec<_>>() {
+        if !coordinate_slots(&next).keys().eq(slots.keys()) {
             return Err(bad("edit would merge or separate a closing node"));
         }
         if patch.preserve_bounds && !bounds_equal((t * path.clone()).bounding_box(), (t * next.clone()).bounding_box()) {

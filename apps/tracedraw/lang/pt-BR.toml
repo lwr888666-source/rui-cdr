@@ -2,8 +2,8 @@
 ai.bar_hint = "Descreva o que desenhar ou mudar e tecle Enter"
 ai.bar_label = "IA"
 ai.connection = "Conexão"
-ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
-ai.no_changes = "No changes applied."
+ai.context_changed = "O documento, a página ou a seleção mudou durante a espera. Envie a solicitação novamente." # mt
+ai.no_changes = "Nenhuma alteração aplicada." # mt
 ai.connection_lost = "A conexão caiu antes de a resposta chegar."
 ai.cut_short = "A resposta veio cortada; peça menos de cada vez."
 ai.done = "Desenhado: {n} alteração(ões)."

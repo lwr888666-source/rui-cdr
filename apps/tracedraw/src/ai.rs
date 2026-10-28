@@ -740,7 +740,7 @@ impl App {
             self.ai.status = AiStatus::Failed(tr(key));
             return;
         }
-        let mut page = if self.selection.is_empty() {
+        let mut page = if self.selection.is_empty() && !node_request(&request) {
             crate::describe::active_page(self, MAX_OBJECTS)
         } else {
             crate::describe::active_selection(self, MAX_OBJECTS)

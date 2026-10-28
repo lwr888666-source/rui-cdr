@@ -2,8 +2,8 @@
 ai.bar_hint = "Beschreiben Sie, was gezeichnet oder geändert werden soll, und drücken Sie Eingabe"
 ai.bar_label = "KI"
 ai.connection = "Verbindung"
-ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
-ai.no_changes = "No changes applied."
+ai.context_changed = "Dokument, Seite oder Auswahl wurden während des Wartens geändert. Senden Sie die Anfrage erneut." # mt
+ai.no_changes = "Keine Änderungen angewendet." # mt
 ai.connection_lost = "Die Verbindung brach ab, bevor die Antwort kam."
 ai.cut_short = "Die Antwort wurde abgeschnitten; bitten Sie um weniger auf einmal."
 ai.done = "Gezeichnet: {n} Änderung(en)."

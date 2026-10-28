@@ -2,8 +2,8 @@
 ai.bar_hint = "Popište, co nakreslit nebo změnit, a stiskněte Enter"
 ai.bar_label = "AI"
 ai.connection = "Připojení"
-ai.context_changed = "The document, page or selection changed while waiting. Submit the request again."
-ai.no_changes = "No changes applied."
+ai.context_changed = "Během čekání se změnil dokument, stránka nebo výběr. Odešlete požadavek znovu." # mt
+ai.no_changes = "Nebyly provedeny žádné změny." # mt
 ai.connection_lost = "Spojení se přerušilo dříve, než přišla odpověď."
 ai.cut_short = "Odpověď byla zkrácena; žádejte najednou méně."
 ai.done = "Nakresleno (počet změn: {n})."
