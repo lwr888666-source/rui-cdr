@@ -139,6 +139,26 @@ pub fn active_page(app: &App, max_objects: usize) -> Value {
     v
 }
 
+/// Selected objects only. In particular, do not send unrelated layers to AI
+/// when a request is about an existing selection.
+pub fn active_selection(app: &App, max_objects: usize) -> Value {
+    let mut budget = max_objects;
+    let mut omitted = 0;
+    let objects: Vec<_> = app
+        .selection
+        .iter()
+        .filter_map(|id| {
+            let shape = app.doc().shape_on_page(*id)?;
+            capped_shape_json(&shape, &mut budget, &mut omitted)
+        })
+        .collect();
+    let size = app.doc().page(app.page).map(|p| p.size).unwrap_or_default();
+    json!({"page": {"width_mm": size.width, "height_mm": size.height}, "selection_only": true,
+        "selection": app.selection.iter().map(|id| id.raw()).collect::<Vec<_>>(),
+        "objects": objects, "objects_not_listed": omitted,
+        "vector_geometry": crate::scripting::selected_vector_geometry(app, 2048)})
+}
+
 /// `shape_json` while `budget` lasts; objects past it are counted in
 /// `omitted` (with their children).
 fn capped_shape_json(

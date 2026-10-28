@@ -187,6 +187,10 @@ pub enum Command {
         shape: ShapeId,
         kind: ShapeKind,
     },
+    /// Patch existing path coordinates without replacing objects or topology.
+    EditPathNodes {
+        patches: Vec<crate::path_nodes::PathNodePatch>,
+    },
     SetShapeName {
         shape: ShapeId,
         name: Option<String>,
@@ -377,7 +381,10 @@ impl Command {
     /// (the Time Tracker's records): the engine applies them without an
     /// undo step, and undo and redo leave that state alone.
     pub fn outside_history(&self) -> bool {
-        matches!(self, Command::SetTimeTracker { .. } | Command::ContactAuthor)
+        matches!(
+            self,
+            Command::SetTimeTracker { .. } | Command::ContactAuthor
+        )
     }
 
     /// Short label for the History panel and the Edit menu ("Undo Move").
@@ -421,6 +428,7 @@ impl Command {
             Command::PatchStroke { .. } => "Outline",
             Command::PatchFill { .. } => "Fill",
             Command::SetShapeKind { .. } => "Edit Object",
+            Command::EditPathNodes { .. } => "Edit Path Nodes",
             Command::SetShapeName { .. } => "Rename Object",
             Command::SetSpline { .. } => "Edit B-Spline",
             Command::SetQrCode { .. } => "QR Code",
@@ -742,6 +750,7 @@ impl Command {
                     });
                 }
             }
+            Command::EditPathNodes { patches } => crate::path_nodes::apply(doc, patches)?,
             Command::SetShapeKind { shape, kind } => {
                 let s = any_mut(doc, *shape)?;
                 // Chosen node types follow node indices: a curve that

@@ -66,7 +66,10 @@ apply).
   layers (the active one marked) and up to 300 objects (id, type, name,
   bounds in mm, fill, outline, opacity, text and font, group children;
   the number of objects left out), and the selection. File names,
-  pictures and the other pages are not sent.
+  pictures and the other pages are not sent. When objects are selected, only
+  those objects and their real vector node data are sent instead of the page's
+  layers. Selected path repairs use the constrained read/patch bridge described
+  in `ai-node-editing.md`, with page bounds and unrelated geometry preserved.
 - Messages API requests carry `x-api-key`, `anthropic-version:
   2023-06-01`, `max_tokens` 8000 and the instructions as `system`; chat
   completions requests put the instructions first as a `system` message.
@@ -83,6 +86,9 @@ apply).
 - After a drawing, the panel says how many changes were made, shows what
   the program printed, and keeps the program under Script, where Open in
   Scripts copies it to the Scripts panel for editing and running again.
+  Node repairs count unique nodes with actual final coordinate changes. A
+  print-only or net-zero program reports no changes, without an undo step.
+  A reply about a document, page or selection changed while waiting is rejected.
 - New conversation forgets the earlier requests.
 - Errors shown: the service's own message with the HTTP status (a wrong
   key, no credit, too many requests), a network error, a reply cut short

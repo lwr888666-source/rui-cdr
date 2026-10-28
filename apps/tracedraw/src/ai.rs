@@ -373,6 +373,8 @@ pub enum AiStatus {
     Retrying,
     /// Drawn, with this many changes.
     Done(usize),
+    /// A valid response made no actual document changes.
+    NoChanges,
     /// The service listed this many models.
     Listed(usize),
     /// Nothing drawn, and why.
@@ -394,9 +396,49 @@ enum Job {
         request: String,
         /// This is already the corrected attempt.
         retried: bool,
+        context: DrawContext,
     },
     /// The service's list of models.
     Models,
+}
+
+/// Reject a reply about a drawing or selection that changed while waiting.
+struct DrawContext {
+    engine: u64,
+    revision: u64,
+    page: tracedraw_core::PageId,
+    selection: Vec<tracedraw_core::ShapeId>,
+    node_only: bool,
+}
+
+fn node_request(request: &str) -> bool {
+    let text = request.to_lowercase();
+    [
+        "节点",
+        "結點",
+        "锚点",
+        "錨點",
+        "控制点",
+        "控制點",
+        "手柄",
+        "贝塞尔",
+    ]
+    .iter()
+    .any(|word| text.contains(word))
+        || text.split(|c: char| !c.is_alphanumeric()).any(|word| {
+            matches!(
+                word,
+                "node"
+                    | "nodes"
+                    | "anchor"
+                    | "anchors"
+                    | "handle"
+                    | "handles"
+                    | "bezier"
+                    | "bézier"
+            )
+        })
+        || text.contains("control point")
 }
 
 /// AI Drawing's state for the session (the docker's fields and the
@@ -460,6 +502,15 @@ Several objects: new ShapeRange([a.id, b.id]).Group() groups them and returns th
 Existing objects: new Shape(id) with an id from the description of the page; ActiveLayer.Shapes.FindShape(name).
 Pages and layers: ActivePage.SizeWidth, ActivePage.SizeHeight, ActivePage.SetSize(width, height), ActivePage.CreateLayer(name) returns a layer with the same Create methods.
 print(text) shows a short message to the user.
+
+Selected vector nodes (real native APIs; use these for local repairs):
+  const g = ActiveDocument.GetSelectedVectorGeometry();
+  g.objects contains only selected native paths, with shape_id, geometry_token, local_to_page and page_to_local affine arrays [a,b,c,d,e,f], closed, subpaths, and nodes.
+  A node has node_index (ZERO-BASED ORIGINAL PATH ELEMENT index, not its position in the nodes array), subpath_index, position, in_handle/out_handle (absolute local {x,y}, null if absent), page_position and page_in_handle/page_out_handle, and node_type. Subpaths list closed, node_indices and segments (line, quadratic, cubic, close) with exact coordinates. Do not normalize or reconstruct the path.
+  ActiveDocument.ApplyPathNodeEdits([{shape_id: obj.shape_id, geometry_token: obj.geometry_token, coordinate_space: 'local', preserve_bounds: true, edits: [{node_index: n.node_index, position: {x: newX, y: newY}}]}]);
+  Omit position or in_handle/out_handle to leave that coordinate exactly unchanged. Handles are absolute points, not deltas. 'page' space accepts the corresponding page coordinates, including all ancestor transforms. A quadratic's one control point is shared: specify both endpoint handle aliases consistently. Closing twins are one canonical node, identified by the start index.
+  The result gives changed_nodes and updated geometry/tokens. The batch is atomic, validates indices, finite/ranged coordinates, tokens, object locks and the ORIGINAL selection, and preserves IDs, styles, transforms, segment types, closed subpaths, and page bounds. A zero result means nothing changed. Unsupported objects are listed with reasons; never silently convert them.
+  For node/handle repair requests use ONLY these coordinate patches. Inspect the supplied vector_geometry and then read current geometry in the script; change only genuine outliers and necessary handles. Do not create, delete, replace, simplify, normalize, transform or restyle anything. Preserve all omitted coordinates. If correcting a node would change the outer bounds or affect dependent objects, explain this constraint instead of redrawing. Never claim that Rui lacks node APIs. If no correction is justified, print that nothing changed, not a success claim.
 
 Rules: keep the drawing on the page unless asked otherwise, in proportion and tidy; use common font families such as Arial, Times New Roman or Georgia; change existing objects through their ids; delete only what the request asks to; files cannot be read or written."#;
 
@@ -677,8 +728,10 @@ pub fn extract_script(reply: &str) -> Option<String> {
         .map(|(_, body)| body.trim().to_string())
         .or_else(|| {
             let t = reply.trim();
-            let looks_like_code =
-                t.contains("ActiveLayer") || t.contains("ActivePage") || t.contains("Create");
+            let looks_like_code = t.contains("ActiveLayer")
+                || t.contains("ActivePage")
+                || t.contains("ActiveDocument")
+                || t.contains("Create");
             looks_like_code.then(|| t.to_string())
         })?;
     (!code.is_empty()).then_some(code)
@@ -714,7 +767,14 @@ impl App {
             self.ai.status = AiStatus::Failed(tr(key));
             return;
         }
-        let page = crate::describe::active_page(self, MAX_OBJECTS);
+        let mut page = if self.selection.is_empty() && !node_request(&request) {
+            crate::describe::active_page(self, MAX_OBJECTS)
+        } else {
+            crate::describe::active_selection(self, MAX_OBJECTS)
+        };
+        if !self.selection.is_empty() && node_request(&request) {
+            page["edit_mode"] = json!("selected_path_nodes_only");
+        }
         let mut messages = Vec::new();
         for t in &self.ai.history {
             messages.push((Role::User, user_message(&t.request, None)));
@@ -727,6 +787,13 @@ impl App {
     /// Send `messages`; the reply is taken in by [`App::poll_ai`] (at once
     /// with a test transport).
     fn ai_send(&mut self, messages: Vec<(Role, String)>, request: String, retried: bool) {
+        let context = DrawContext {
+            engine: self.engine.instance(),
+            revision: self.engine.revision(),
+            page: self.page,
+            selection: self.selection.clone(),
+            node_only: node_request(&request),
+        };
         let http = build_request(&self.settings.ai, &self.ai.key, &messages);
         self.ai.status = if retried {
             AiStatus::Retrying
@@ -739,6 +806,7 @@ impl App {
                 messages,
                 request,
                 retried,
+                context,
             },
         );
     }
@@ -848,7 +916,7 @@ impl App {
     }
 
     fn ai_receive(&mut self, result: HttpResult, p: Pending) {
-        let (messages, request, retried) = match p.job {
+        let (messages, request, retried, context) = match p.job {
             Job::Models => {
                 match result.and_then(|r| parse_models(&r)) {
                     Ok(models) => {
@@ -863,8 +931,17 @@ impl App {
                 messages,
                 request,
                 retried,
-            } => (messages, request, retried),
+                context,
+            } => (messages, request, retried, context),
         };
+        if self.engine.instance() != context.engine
+            || self.engine.revision() != context.revision
+            || self.page != context.page
+            || self.selection != context.selection
+        {
+            self.ai.status = AiStatus::Failed(tr("ai.context_changed"));
+            return;
+        }
         let provider = self.settings.ai.provider;
         let reply = match result.and_then(|r| parse_reply(provider, &r)) {
             Ok(text) => text,
@@ -882,10 +959,19 @@ impl App {
             return;
         }
         self.ai.script = script.clone();
-        match crate::scripting::run_untrusted(self, &script, UNDO_LABEL) {
+        let result = if context.node_only {
+            crate::scripting::run_node_repair(self, &script, UNDO_LABEL)
+        } else {
+            crate::scripting::run_untrusted(self, &script, UNDO_LABEL)
+        };
+        match result {
             Ok((output, changes)) => {
                 self.ai.output = output;
-                self.ai.status = AiStatus::Done(changes);
+                self.ai.status = if changes == 0 {
+                    AiStatus::NoChanges
+                } else {
+                    AiStatus::Done(changes)
+                };
                 // The request is done: the field is free for the next.
                 if self.ai.request.trim() == request {
                     self.ai.request.clear();
@@ -894,7 +980,11 @@ impl App {
                 while self.ai.history.len() > MAX_HISTORY {
                     self.ai.history.remove(0);
                 }
-                self.status = trf("status.ai_drawn", &[("n", &changes.to_string())]);
+                self.status = if changes == 0 {
+                    tr("ai.no_changes")
+                } else {
+                    trf("status.ai_drawn", &[("n", &changes.to_string())])
+                };
             }
             Err(e) if !retried => {
                 let mut messages = messages;
@@ -1150,6 +1240,153 @@ mod tests {
         assert_eq!(app.ai.status, AiStatus::Done(1));
         app.ai_new_conversation();
         assert!(app.ai.history.is_empty());
+    }
+
+    #[test]
+    fn natural_language_node_repair_reads_decides_edits_and_reports_actual_changes() {
+        let (mut app, selected, other) = crate::scripting::node_fixture();
+        app.ai.key = "sk-test".into();
+        let before = app.doc().clone();
+        app.ai.fake = Some(|req| {
+            let body: Value = serde_json::from_str(&req.body).expect("request JSON");
+            let text = body["messages"]
+                .as_array()
+                .expect("messages")
+                .last()
+                .expect("user")["content"]
+                .as_str()
+                .expect("content");
+            assert!(text.contains("只优化突出来的小节点，不改变原图形"));
+            assert!(text.contains("geometry_token") && text.contains("selected_path_nodes_only"));
+            assert!(
+                !text.contains("PRIVATE OTHER OBJECT"),
+                "unselected geometry is not sent"
+            );
+            assert!(
+                SYSTEM_PROMPT.contains("GetSelectedVectorGeometry")
+                    && SYSTEM_PROMPT.contains("ApplyPathNodeEdits")
+            );
+            anthropic_reply(&format!("```js\n{}\n```", crate::scripting::REPAIR_SCRIPT))
+        });
+        app.ai.request = "只优化突出来的小节点，不改变原图形".into();
+        app.ai_draw();
+        assert_eq!(app.ai.status, AiStatus::Done(1));
+        assert_eq!(app.ai.output, ["Applied nodes: 1"]);
+        assert_eq!(app.doc().find_shape(other), before.find_shape(other));
+        assert_eq!(app.selection, [selected]);
+        let after = app.doc().clone();
+        assert_ne!(after, before);
+        app.undo();
+        assert_eq!(app.doc(), &before);
+        app.redo();
+        assert_eq!(app.doc(), &after);
+        // A second request sees the already repaired path and reports no change.
+        app.ai.request = "只优化突出来的小节点，不改变原图形".into();
+        let revision = app.engine.revision();
+        app.ai_draw();
+        assert_eq!(app.ai.status, AiStatus::NoChanges);
+        assert_eq!(app.engine.revision(), revision);
+        assert_eq!(app.doc(), &after);
+    }
+
+    #[test]
+    fn node_repair_failure_never_leaves_partial_changes_or_reports_success() {
+        let (mut app, _, _) = crate::scripting::node_fixture();
+        app.ai.key = "sk-test".into();
+        app.ai.fake = Some(|_| {
+            anthropic_reply(&format!(
+                "```js\n{}\nthrow new Error('test failure after edit');\n```",
+                crate::scripting::REPAIR_SCRIPT
+            ))
+        });
+        let before = app.doc().clone();
+        let revision = app.engine.revision();
+        app.ai.request = "只优化突出来的小节点，不改变原图形".into();
+        app.ai_draw();
+        assert!(matches!(app.ai.status, AiStatus::Failed(_)));
+        assert_eq!(
+            app.ai.sent.len(),
+            2,
+            "one normal request and one correction attempt"
+        );
+        assert!(app.ai.output.is_empty());
+        assert_eq!(app.doc(), &before);
+        assert_eq!(app.engine.revision(), revision);
+        assert!(!app.engine.is_dirty());
+    }
+
+    #[test]
+    fn node_request_without_selection_or_supported_paths_is_an_honest_noop() {
+        let (mut app, _, other) = crate::scripting::node_fixture();
+        app.ai.key = "sk-test".into();
+        for selection in [Vec::new(), vec![other]] {
+            app.selection = selection;
+            app.ai.fake = Some(|req| {
+                assert!(
+                    !req.body.contains("selected outline"),
+                    "do not send unselected objects even when selection is empty"
+                );
+                anthropic_reply("```js\nconst g=ActiveDocument.GetSelectedVectorGeometry(); if(g.objects.length) throw new Error('expected unsupported or empty'); print(g.unsupported.map(o=>o.reason).join('; ') || 'No selected paths');\n```")
+            });
+            let before = app.doc().clone();
+            let revision = app.engine.revision();
+            app.ai.request = "只优化突出来的小节点，不改变原图形".into();
+            app.ai_draw();
+            assert_eq!(app.ai.status, AiStatus::NoChanges);
+            assert!(!app.ai.output.is_empty());
+            assert_eq!(app.doc(), &before);
+            assert_eq!(app.engine.revision(), revision);
+        }
+        assert!(!node_request("draw a bicycle handlebar"));
+        assert!(node_request("adjust the handles of selected nodes"));
+    }
+
+    #[test]
+    fn pending_reply_cannot_edit_a_changed_selection_document_or_page() {
+        let (mut app, selected, other) = crate::scripting::node_fixture();
+        for mutation in 0..4 {
+            let context = DrawContext {
+                engine: app.engine.instance(),
+                revision: app.engine.revision(),
+                page: app.page,
+                selection: vec![selected],
+                node_only: true,
+            };
+            let (_, rx) = std::sync::mpsc::channel();
+            let pending = Pending {
+                rx,
+                job: Job::Draw {
+                    messages: Vec::new(),
+                    request: "repair nodes".into(),
+                    retried: false,
+                    context,
+                },
+            };
+            match mutation {
+                0 => app.selection = vec![other],
+                1 => {
+                    app.selection = vec![selected];
+                    app.engine
+                        .run(&tracedraw_core::Command::SetShapeName {
+                            shape: selected,
+                            name: Some("changed while waiting".into()),
+                        })
+                        .expect("rename");
+                }
+                2 => {
+                    app.engine.replace(app.doc().clone());
+                }
+                _ => app.page = tracedraw_core::PageId(u64::MAX),
+            }
+            let before = app.doc().clone();
+            app.ai_receive(
+                anthropic_reply(&format!("```js\n{}\n```", crate::scripting::REPAIR_SCRIPT)),
+                pending,
+            );
+            assert_eq!(app.ai.status, AiStatus::Failed(tr("ai.context_changed")));
+            assert_eq!(app.doc(), &before);
+            assert!(app.ai.sent.is_empty());
+        }
     }
 
     #[test]

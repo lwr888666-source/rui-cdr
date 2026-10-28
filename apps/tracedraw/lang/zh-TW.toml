@@ -2,6 +2,8 @@
 ai.bar_hint = "描述要繪製或變更的內容，然後按 Enter"
 ai.bar_label = "AI"
 ai.connection = "連線"
+ai.context_changed = "等待期間文件、頁面或選取範圍已改變，請重新提交要求。"
+ai.no_changes = "未套用任何變更。"
 ai.connection_lost = "在收到回覆之前連線已中斷。"
 ai.cut_short = "回覆被截斷；請一次要求少一點內容。"
 ai.done = "已繪製：{n} 項變更。"

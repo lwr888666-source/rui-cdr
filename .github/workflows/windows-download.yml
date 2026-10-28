@@ -1,0 +1,91 @@
+name: Windows download from checked source
+
+on:
+  push:
+    branches: [codex/ai-path-node-edits]
+    paths: [.github/workflows/windows-download.yml]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Source commit already checked by the build workflow"
+        required: true
+        default: "8b496569a9ccbf2318ae8a63f16a2bbcb3c3744d"
+      run_id:
+        description: "Successful build workflow run for that exact commit"
+        required: true
+        default: "40705261400"
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  CHECKED_SHA: ${{ inputs.sha || '8b496569a9ccbf2318ae8a63f16a2bbcb3c3744d' }}
+  CHECKED_RUN: ${{ inputs.run_id || '40705261400' }}
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - name: Require successful validation of the exact source
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $headers = @{Authorization="Bearer $env:GH_TOKEN"; 'User-Agent'='Rui-package'}
+          $run = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:CHECKED_RUN"
+          if ($run.conclusion -ne 'success' -or $run.head_sha -ne $env:CHECKED_SHA -or $run.path -ne '.github/workflows/build.yml') {
+            throw 'The exact source has not passed the full build workflow.'
+          }
+          "Packaging validated source $env:CHECKED_SHA"
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.CHECKED_SHA }}
+      - uses: dtolnay/rust-toolchain@1.97.0
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: build
+          key: x86_64-pc-windows-msvc
+          cache-on-failure: true
+      - name: Build programs
+        run: cargo build --locked --release --target x86_64-pc-windows-msvc -p rui -p rui-cli
+      - name: Package and check Windows downloads
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = Get-Content Cargo.toml -Raw
+          $baseVersion = [regex]::Match($manifest, '(?m)^version = "([^"]+)"').Groups[1].Value
+          if (-not $baseVersion) { throw 'Missing workspace version' }
+          $version = "$baseVersion-nodes.$($env:CHECKED_SHA.Substring(0,7))"
+          "RUI_PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $src = 'target\x86_64-pc-windows-msvc\release'
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DVersion=$version" "/DSrcDir=$PWD\$src" packaging\windows\rui.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+          Copy-Item -Recurse -Force packaging\windows\portable\rui-settings "$src\rui-settings"
+          Compress-Archive -Path "$src\rui.exe","$src\rui-cli.exe","$src\rui-settings",README.md,ATTRIBUTION.md,LICENSE-MIT,LICENSE-APACHE -DestinationPath "dist\Rui-$version-windows-x86_64-portable.zip"
+          ./scripts/check-windows-package.ps1 -Version $version -Directory dist -Install
+          if ($LASTEXITCODE -ne 0) { throw 'Package validation failed' }
+          Get-ChildItem dist -File | Get-FileHash -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLowerInvariant())  $(Split-Path $_.Path -Leaf)" } | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+      - name: Publish checked downloads
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = "ai-nodes-$($env:CHECKED_SHA.Substring(0,7))"
+          "Built from $env:CHECKED_SHA. Adds real selected vector node reads and atomic coordinate edits to AI Generate, with native Undo/Redo. Validation: https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:CHECKED_RUN" | Set-Content "$env:RUNNER_TEMP/rui-release-notes.md" -Encoding utf8
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:CHECKED_SHA --title "Rui $env:RUI_PACKAGE_VERSION - AI vector node editing" --notes-file "$env:RUNNER_TEMP/rui-release-notes.md" --prerelease
+            if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
+          }
+          $files = @(Get-ChildItem dist -File | ForEach-Object { $_.FullName })
+          gh release upload $tag @files --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Download upload failed' }

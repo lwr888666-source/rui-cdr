@@ -65,6 +65,7 @@ pub fn ai_drawing(app: &mut App, ui: &mut Ui) {
     });
     match &app.ai.status {
         AiStatus::Idle => {}
+        AiStatus::NoChanges => dim(ui, tr("ai.no_changes")),
         AiStatus::Waiting => dim(ui, tr("ai.waiting")),
         AiStatus::Retrying => dim(ui, tr("ai.retrying")),
         AiStatus::Done(n) => {

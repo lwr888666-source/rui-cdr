@@ -10,6 +10,11 @@ on:
   # makes the tag and the release itself, with the installers attached.
   workflow_dispatch:
     inputs:
+      checks_only:
+        description: "Run validation without storing packages or publishing downloads"
+        type: boolean
+        required: false
+        default: false
       release:
         description: "Version to release, like 0.3.0 (empty: build only)"
         required: false
@@ -51,6 +56,16 @@ jobs:
         shell: pwsh
         run: ./scripts/tests/check-windows-package.tests.ps1
       - run: cargo test --locked --workspace
+        env:
+          RUI_NODE_SHOTS: ${{ runner.temp }}/rui-node-shots
+      - name: Node edit rendering evidence
+        if: always()
+        shell: python
+        run: |
+          import base64, os, pathlib
+          folder = pathlib.Path(os.environ['RUNNER_TEMP']) / 'rui-node-shots'
+          for path in sorted(folder.glob('*.png')):
+              print('RUI_NODE_PNG ' + path.name + ' ' + base64.b64encode(path.read_bytes()).decode())
       - run: cargo clippy --locked --workspace --exclude rui -- -D warnings
 
   build:
@@ -109,6 +124,17 @@ jobs:
       - name: Build
         run: cargo build --locked --release --target ${{ matrix.target }} -p rui -p rui-cli
 
+      - name: Frame benchmarks against the last release
+        if: matrix.name == 'linux-x86_64'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rui-visual/benchmarks"
+          cargo test --locked --release --target x86_64-unknown-linux-gnu -p rui -- --ignored frame_times --nocapture 2>&1 | tee "$RUNNER_TEMP/rui-visual/benchmarks/current.log"
+          git fetch --depth=1 origin refs/tags/nightly
+          git worktree add --detach "$RUNNER_TEMP/rui-baseline" FETCH_HEAD
+          CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target" cargo test --locked --release --target x86_64-unknown-linux-gnu --manifest-path "$RUNNER_TEMP/rui-baseline/Cargo.toml" -p rui -- --ignored frame_times --nocapture 2>&1 | tee "$RUNNER_TEMP/rui-visual/benchmarks/baseline.log"
+
       # The main window, after the splash screen and without it, can be
       # maximized and resized under a window manager (see
       # scripts/visual/window_check.sh).
@@ -129,7 +155,7 @@ jobs:
           MONKEY_SEED=20261028 MONKEY_STEPS=50 TRACEDRAW_SHOTS="$RUNNER_TEMP/rui-visual/monkey" bash scripts/visual/run.sh scripts/visual/monkey.py
 
       - name: UI check screenshots
-        if: always() && matrix.name == 'linux-x86_64'
+        if: always() && matrix.name == 'linux-x86_64' && inputs.checks_only != true
         uses: actions/upload-artifact@v4
         with:
           name: ui-checks
@@ -307,6 +333,7 @@ jobs:
           tar -C "target/${{ matrix.target }}/release" -czf "dist/Rui-${{ steps.ver.outputs.version }}-linux-$arch.tar.gz" rui rui-cli
 
       - uses: actions/upload-artifact@v4
+        if: inputs.checks_only != true
         with:
           name: Rui-${{ matrix.name }}
           path: dist/*
@@ -412,19 +439,21 @@ jobs:
       # download: the folder is kept with the run only (its name does not
       # match the release's rui-* artifacts).
       - uses: actions/upload-artifact@v4
+        if: inputs.checks_only != true
         with:
           name: web-site
           path: dist/*
           if-no-files-found: error
 
       - uses: actions/upload-pages-artifact@v3
+        if: inputs.checks_only != true
         with:
           path: site
 
   # GitHub Pages must be set to "GitHub Actions" (Settings > Pages); the
   # job tries to enable it and does not fail the build when it cannot.
   pages:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !github.event.repository.private
     needs: web
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -444,7 +473,7 @@ jobs:
   # Version tags publish a release; every push to main refreshes the
   # "nightly" pre-release with the installers of that commit.
   release:
-    if: (github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')) || (github.event_name == 'workflow_dispatch' && inputs.release != '')
+    if: inputs.checks_only != true && ((github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')) || (github.event_name == 'workflow_dispatch' && inputs.release != ''))
     needs: [build, web]
     runs-on: ubuntu-latest
     permissions:

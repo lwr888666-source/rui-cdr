@@ -2,6 +2,8 @@
 ai.bar_hint = "Décrivez ce qu'il faut dessiner ou modifier, puis appuyez sur Entrée"
 ai.bar_label = "IA"
 ai.connection = "Connexion"
+ai.context_changed = "Le document, la page ou la sélection a changé pendant l'attente. Renvoyez la demande." # mt
+ai.no_changes = "Aucune modification appliquée." # mt
 ai.connection_lost = "La connexion a été perdue avant la réponse."
 ai.cut_short = "La réponse a été tronquée ; demandez moins à la fois."
 ai.done = "Dessiné : {n} modification(s)."
