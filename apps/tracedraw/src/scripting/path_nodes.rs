@@ -341,6 +341,25 @@ print('Applied nodes: ' + changed);
     }
 
     #[test]
+    fn repair_keeps_the_original_canvas_page_and_selection() {
+        let (mut app, selected, _) = node_fixture();
+        let original_page = app.page;
+        let size = app.doc().page(original_page).expect("page").size;
+        app.engine
+            .run(&Command::AddPage { name: None, size })
+            .expect("another page");
+        let source = format!("ActiveDocument.Pages.Item(2).Activate(); ActiveDocument.ClearSelection();\n{REPAIR_SCRIPT}");
+        assert_eq!(
+            run_node_repair(&mut app, &source, "AI Drawing")
+                .expect("repair")
+                .1,
+            1
+        );
+        assert_eq!(app.page, original_page);
+        assert_eq!(app.selection, [selected]);
+    }
+
+    #[test]
     fn zero_changes_keep_history_and_actual_counts_ignore_repeated_assignments() {
         let (mut app, _, _) = node_fixture();
         let before = app.doc().clone();

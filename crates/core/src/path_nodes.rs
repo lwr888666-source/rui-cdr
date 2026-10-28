@@ -130,13 +130,17 @@ fn end(el: &PathEl) -> Option<Point> {
 
 /// Validate without normalizing or elevating quadratics.
 fn layout(path: &BezPath) -> Result<Vec<SubpathGeometry>> {
-    if path.elements().len() > MAX_ELEMENTS {
+    layout_elements(path.elements())
+}
+
+fn layout_elements(elements: &[PathEl]) -> Result<Vec<SubpathGeometry>> {
+    if elements.len() > MAX_ELEMENTS {
         return Err(bad("path exceeds the node-edit limit"));
     }
     let mut subs: Vec<SubpathGeometry> = Vec::new();
     let mut last = Point::ZERO;
     let mut start = Point::ZERO;
-    for (index, el) in path.elements().iter().enumerate() {
+    for (index, el) in elements.iter().enumerate() {
         if let PathEl::MoveTo(p) = *el {
             check_point(p)?;
             subs.push(SubpathGeometry {
@@ -822,6 +826,12 @@ mod tests {
                 PathEl::LineTo(Point::new(1.0, 1.0)),
             ],
         ] {
+            assert!(layout_elements(&elements).is_err());
+            // BezPath itself rejects a first element other than MoveTo.
+            // Validate such raw data before constructing the library type.
+            if matches!(elements.first(), Some(PathEl::LineTo(_))) {
+                continue;
+            }
             let mut invalid = before.clone();
             invalid.find_shape_mut(id).expect("shape").kind = ShapeKind::Path {
                 path: BezPath::from_vec(elements),

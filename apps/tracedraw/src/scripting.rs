@@ -542,12 +542,17 @@ fn run_host_mode(
     } else {
         inner.selection
     };
+    let page = if inner.node_only {
+        app.page
+    } else {
+        inner.page
+    };
     let commands = if changes == 0 {
         Vec::new()
     } else {
         inner.commands
     };
-    apply(app, commands, selection, inner.page, label)?;
+    apply(app, commands, selection, page, label)?;
     Ok((output, changes))
 }
 
