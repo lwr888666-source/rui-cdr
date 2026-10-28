@@ -81,7 +81,10 @@ through the script bridge. No unrelated document geometry is sent for a selectio
 Node repair refuses object creation, replacement, styles and transforms, even
 when the generated script catches the error. Any script or validation failure
 rolls back the complete script. A final document comparison, after the engine's
-text flow refresh, rejects unintended changes to dependent objects. Changes to
+text flow refresh, rejects unintended changes to dependent objects. Generated
+connector, callout, dimension and raster-effect paths, clipping boundaries,
+and paths driving linked blends/connectors are refused before a later frame
+can regenerate them or alter related objects. Changes to
 the engine, document revision, active page or selection while waiting invalidate
 the reply. The existing single retry can ask the service for a corrected program.
 

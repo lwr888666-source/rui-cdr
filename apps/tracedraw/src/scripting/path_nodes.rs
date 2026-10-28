@@ -105,6 +105,15 @@ pub(super) fn changed_nodes(
 /// A node edit may change only selected paths. Check after the same text-flow
 /// refresh used by Engine so dependency side effects cannot alter other objects.
 pub(super) fn validate_result(before: &Document, host: &HostInner) -> Result<(), String> {
+    let changed: std::collections::BTreeSet<_> = host
+        .node_scope
+        .iter()
+        .copied()
+        .filter(|id| {
+            before.find_shape(*id).map(|s| &s.kind) != host.doc.find_shape(*id).map(|s| &s.kind)
+        })
+        .collect();
+    validate_dependencies(before, &changed)?;
     let mut checked = host.doc.clone();
     checked.refresh_text_flow();
     for id in &host.node_scope {
@@ -122,6 +131,63 @@ pub(super) fn validate_result(before: &Document, host: &HostInner) -> Result<(),
     }
     if checked != *before {
         return Err("node edit would alter object properties, topology or a dependent object; nothing was changed".into());
+    }
+    Ok(())
+}
+
+/// Some native objects regenerate after a frame. Reject these edits before
+/// commit rather than letting a later refresh silently alter other geometry.
+fn validate_dependencies(
+    doc: &Document,
+    changed: &std::collections::BTreeSet<ShapeId>,
+) -> Result<(), String> {
+    if changed.is_empty() {
+        return Ok(());
+    }
+    let mut affected = changed.clone();
+    for id in changed {
+        let mut containers = doc.ancestors(*id);
+        affected.extend(containers.iter().copied());
+        containers.push(*id);
+        for ancestor in containers {
+            let shape = doc
+                .find_shape(ancestor)
+                .ok_or("selected object no longer exists")?;
+            if shape.raster_fx.is_some()
+                || crate::connectors::Connection::of(shape).is_some()
+                || crate::callouts::Callout::of(shape).is_some()
+                || crate::dimensions::Dimension::of(shape).is_some()
+            {
+                return Err("this path belongs to a generated connector, callout, dimension or raster effect; coordinate-only repair cannot preserve its dependencies".into());
+            }
+            if let ShapeKind::ClipFrame { frame, .. } = &shape.kind {
+                if affected.contains(&frame.id) {
+                    return Err("editing a clipping boundary would change other objects; nothing was changed".into());
+                }
+            }
+        }
+    }
+    fn walk(shape: &tracedraw_core::Shape, affected: &std::collections::BTreeSet<ShapeId>) -> bool {
+        if crate::connectors::Connection::of(shape)
+            .is_some_and(|c| affected.contains(&c.from) || affected.contains(&c.to))
+        {
+            return true;
+        }
+        if shape.effects.iter().any(|e| matches!(e, tracedraw_core::live::Effect::Blend { end_id: Some(id), .. } if affected.contains(id))) { return true; }
+        match &shape.kind {
+            ShapeKind::Group { children } => children.iter().any(|s| walk(s, affected)),
+            ShapeKind::ClipFrame { frame, contents } => {
+                walk(frame, affected) || contents.iter().any(|s| walk(s, affected))
+            }
+            _ => false,
+        }
+    }
+    if doc
+        .all_layers()
+        .flat_map(|l| &l.shapes)
+        .any(|s| walk(s, &affected))
+    {
+        return Err("this path drives a linked blend or connector; repairing it could alter another object, so nothing was changed".into());
     }
     Ok(())
 }
@@ -228,6 +294,25 @@ print('Applied nodes: ' + changed);
         let revision = app.engine.revision();
         let bad = format!("{REPAIR_SCRIPT}\ntry {{ ActiveDocument.ApplyPathNodeEdits([{{shape_id:999999,geometry_token:'invalid',coordinate_space:'local',edits:[]}}]); }} catch(e) {{ print(e); }}");
         assert!(run_node_repair(&mut app, &bad, "AI Drawing").is_err());
+        assert_eq!(app.doc(), &before);
+        assert_eq!(app.engine.revision(), revision);
+        assert!(!app.engine.is_dirty());
+    }
+
+    #[test]
+    fn linked_blends_are_rejected_before_a_frame_can_change_other_objects() {
+        let (mut app, selected, other) = node_fixture();
+        app.selection = vec![other, selected];
+        app.blend_selection(3, 0.0, 0.0, 0.0);
+        app.refresh_blends();
+        app.selection = vec![selected];
+        app.engine.mark_saved();
+        let before = app.doc().clone();
+        let revision = app.engine.revision();
+        let error =
+            run_node_repair(&mut app, REPAIR_SCRIPT, "AI Drawing").expect_err("linked dependent");
+        assert!(error.contains("linked blend"), "{error}");
+        app.refresh_blends();
         assert_eq!(app.doc(), &before);
         assert_eq!(app.engine.revision(), revision);
         assert!(!app.engine.is_dirty());
