@@ -1,6 +1,6 @@
 //! PDF (and PDF-compatible AI) import.
 //!
-//! The content stream of every page is interpreted into TraceDraw objects:
+//! The content stream of every page is interpreted into Rui objects:
 //! paths with fills and outlines, images, text runs, form XObjects, axial
 //! and radial shadings as fountain fills, constant alpha from ExtGStates,
 //! and clipping paths as clip frames. The object parsing (xref, streams,

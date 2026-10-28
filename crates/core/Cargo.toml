@@ -3,7 +3,7 @@ name = "tracedraw-core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Document model, geometry and command engine for the TraceDraw vector editor"
+description = "Document model, geometry and command engine for the Rui vector editor"
 
 [dependencies]
 kurbo.workspace = true

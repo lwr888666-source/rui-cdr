@@ -1,7 +1,7 @@
 # Contributors
 
-TraceDraw is written by Ighor Toth, with Claude Code as co-author (see the
-README). These people contributed code that is part of TraceDraw. Thank
+Rui is written by Ighor Toth, with Claude Code as co-author (see the
+README). These people contributed code that is part of Rui. Thank
 you!
 
 Everyone whose code is merged also appears in GitHub's contributor list:

@@ -78,7 +78,7 @@ fn main() {
         ShapeKind::Text {
             spans: vec![TextSpan {
                 bold: true,
-                ..TextSpan::new("TraceDraw", "Arial", 36.0)
+                ..TextSpan::new("Rui", "Arial", 36.0)
             }],
             origin: Point::new(20.0, 40.0),
             frame: None,

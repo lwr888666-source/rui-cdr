@@ -1069,7 +1069,7 @@ fn read_style_string(r: &mut Reader, d: &[u8], v: u16) -> Option<String> {
 }
 
 /// A style string of version 17 on, held as bytes: UTF-8, as the object
-/// style strings and the strings TraceDraw writes are, so a font named
+/// style strings and the strings Rui writes are, so a font named
 /// in Chinese ("方正黑体_GBK") reads as named (#898); bytes that are not
 /// UTF-8 read as Windows-1252, stopping at the first NUL either way.
 pub(crate) fn decode_style_bytes(b: &[u8]) -> String {
@@ -1186,7 +1186,7 @@ fn read_txsm_16(d: &[u8], v: u16, warn: &mut dyn FnMut(String)) -> Option<Txsm> 
         let text = if v >= 17 || nbytes != nc.saturating_mul(2) {
             match decode_mixed_width(text, &wide) {
                 Some(s) => s,
-                // Files saved by TraceDraw before 0.11.1 held the letters
+                // Files saved by Rui before 0.11.1 held the letters
                 // Windows-1252 lacks as UTF-8, with no letter marked
                 // (#368): such bytes, UTF-8 with exactly as many letters as
                 // records, are read so (before the UTF-16 guess: Cyrillic

@@ -1,4 +1,4 @@
-//! tracedraw-core: the pure-data heart of TraceDraw.
+//! tracedraw-core: the pure-data heart of Rui.
 //!
 //! Everything in this crate is independent of any UI or file format.
 //! The UI, the CLI and the importers all talk to the engine through

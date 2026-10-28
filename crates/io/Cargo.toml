@@ -3,7 +3,7 @@ name = "tracedraw-io"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Import/export between the TraceDraw document model and other formats (SVG, native .tdraw)"
+description = "Import/export between the Rui document model and other formats (SVG, native .tdraw)"
 
 [dependencies]
 tracedraw-core.workspace = true

@@ -3,7 +3,7 @@ name = "tracedraw-text"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Font discovery, shaping and glyph outlines for TraceDraw"
+description = "Font discovery, shaping and glyph outlines for Rui"
 
 [dependencies]
 tracedraw-core.workspace = true

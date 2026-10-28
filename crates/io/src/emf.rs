@@ -5,7 +5,7 @@
 //! maps logical coordinates through the map mode, window/viewport and
 //! (EMF) world transform to device pixels, and from there to millimetres
 //! using the header frame. Paths, polygons, rectangles, ellipses, arcs,
-//! text and DIB bitmaps become TraceDraw objects; clip paths and rects
+//! text and DIB bitmaps become Rui objects; clip paths and rects
 //! become clip frames around what is drawn inside them. Layouts follow the
 //! public Windows metafile specifications. Nothing in the input can panic
 //! the reader: every read is bounds-checked and record counts are capped.

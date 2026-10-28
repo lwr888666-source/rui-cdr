@@ -2427,7 +2427,7 @@ fn text_from_version_16_marks_the_letters_windows_1252_lacks() {
     }
 }
 
-/// A text record holding its letters as unmarked UTF-8, as TraceDraw
+/// A text record holding its letters as unmarked UTF-8, as Rui
 /// saved them before #368, reads back as the text it was.
 #[test]
 fn unmarked_utf8_letters_of_older_saves_read_back() {

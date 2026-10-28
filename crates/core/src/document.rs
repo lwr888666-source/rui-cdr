@@ -4556,7 +4556,7 @@ impl Document {
     }
 
     /// Serialize as a `.tdraw` file of format `version` (the current one
-    /// for a newer number), for an older TraceDraw: the current layout is
+    /// for a newer number), for an older Rui: the current layout is
     /// taken down one step at a time ([`DOWN_STEPS`]).
     pub fn to_json_version(&self, version: u32) -> Result<String> {
         let mut out = Vec::new();
@@ -4619,20 +4619,20 @@ impl Document {
 }
 
 /// The `.tdraw` format's version, written into every file. A change that
-/// an older TraceDraw would read wrongly (a field renamed, moved or given
+/// an older Rui would read wrongly (a field renamed, moved or given
 /// another meaning) raises it and adds a step to [`migrate`]; a new field
 /// with a default does not. The next version is 2: 1 was written by
-/// TraceDraw 0.5 to 0.9 for the layout of 0 and is read as 0. See
+/// Rui 0.5 to 0.9 for the layout of 0 and is read as 0. See
 /// `docs/tdraw-format.md`.
 pub const TDRAW_FORMAT_VERSION: u32 = 0;
 
-/// The number TraceDraw 0.5 to 0.9 wrote for the layout of version 0.
+/// The number Rui 0.5 to 0.9 wrote for the layout of version 0.
 const SAME_AS_ZERO: u64 = 1;
 
 const FORMAT_VERSION_KEY: &str = "format_version";
 
 /// The format version a `.tdraw` file's JSON says it has: 0 for files
-/// written before versions were recorded, and for the 1 of TraceDraw 0.5
+/// written before versions were recorded, and for the 1 of Rui 0.5
 /// to 0.9 (the same layout).
 pub fn tdraw_version(v: &serde_json::Value) -> u32 {
     v.get(FORMAT_VERSION_KEY)
@@ -4659,7 +4659,7 @@ const STEPS: [Step; TDRAW_FORMAT_VERSION as usize] = [];
 /// saving in an older version (none yet).
 const DOWN_STEPS: [Step; TDRAW_FORMAT_VERSION as usize] = [];
 
-/// The TraceDraw release that first wrote each `.tdraw` format version
+/// The Rui release that first wrote each `.tdraw` format version
 /// (`TDRAW_RELEASES[v]`), for Save As.
 pub const TDRAW_RELEASES: [&str; TDRAW_FORMAT_VERSION as usize + 1] = ["0.4"];
 
@@ -5042,7 +5042,7 @@ mod tests {
             Document::from_json(&old.to_string()).expect("old").title,
             "v"
         );
-        // The 1 that TraceDraw 0.5 to 0.9 wrote is the layout of 0.
+        // The 1 that Rui 0.5 to 0.9 wrote is the layout of 0.
         let mut one = old.clone();
         one.as_object_mut()
             .expect("object")
