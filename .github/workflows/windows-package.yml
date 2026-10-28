@@ -1,45 +1,16 @@
 name: Windows package
 
+# Manual entry point to the same tested pipeline used by pushes to main.
+# Keeping one pipeline avoids two Windows compilations for every push.
 on:
-  push:
-    branches: [main]
-    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: dtolnay/rust-toolchain@1.97.0
-      - uses: Swatinem/rust-cache@v2
-      - name: Test
-        run: cargo test --workspace
-      - name: Build
-        run: cargo build --release -p rui-cdr -p rui-cdr-cli
-      - name: Package
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $version = (Select-String -Path Cargo.toml -Pattern '^version = "([^"]+)"$' | Select-Object -First 1).Matches.Groups[1].Value
-          if (-not $version) { throw 'Workspace version not found' }
-          New-Item -ItemType Directory -Force dist, staging | Out-Null
-          Copy-Item target/release/rui-cdr.exe staging/tracedraw.exe
-          Copy-Item target/release/rui-cdr-cli.exe staging/tracedraw-cli.exe
-          $compiler = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
-          & $compiler "/DVersion=$version" "/DSrcDir=$PWD\staging" packaging/windows/tracedraw.iss
-          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed: $LASTEXITCODE" }
-          Copy-Item -Recurse packaging/windows/portable/tracedraw-settings staging/tracedraw-settings
-          Copy-Item README.md, LICENSE-MIT, LICENSE-APACHE staging/
-          Compress-Archive -Path staging/* -DestinationPath "dist/tracedraw-$version-windows-x86_64-portable.zip"
-          ./scripts/check-windows-package.ps1 -Version $version -Directory dist
-      - uses: actions/upload-artifact@v4
-        with:
-          name: tracedraw-windows-x86_64
-          path: |
-            dist/*-setup.exe
-            dist/*-portable.zip
-          if-no-files-found: error
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit

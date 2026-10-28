@@ -10,10 +10,7 @@ pub const TOP_LEFT: Color32 = Color32::from_rgb(0x24, 0x44, 0x75);
 pub const TOP_RIGHT: Color32 = Color32::from_rgb(0x1A, 0x31, 0x58);
 pub const BOTTOM: Color32 = Color32::from_rgb(0x0E, 0x19, 0x2D);
 pub const CURVE: Color32 = Color32::from_rgb(0x5C, 0xAE, 0xFF);
-pub const NAME_ACCENT: Color32 = Color32::from_rgb(0x7F, 0xC3, 0xFF);
 pub const TAGLINE: Color32 = Color32::from_rgb(0xC9, 0xD7, 0xEC);
-#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
-pub const FOOTNOTE: Color32 = Color32::from_rgb(0x8F, 0xA3, 0xC0);
 
 /// The 128 px application icon, decoded once per session.
 pub fn icon(ctx: &Context) -> Option<TextureHandle> {

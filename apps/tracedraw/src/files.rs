@@ -184,6 +184,10 @@ pub fn remove(path: impl AsRef<Path>) -> std::io::Result<()> {
 
 /// Choose a folder (desktop only; `None` when cancelled or in a browser).
 pub fn pick_folder() -> Option<PathBuf> {
+    // Unit tests have no operator to dismiss a system dialog.
+    if cfg!(test) {
+        return None;
+    }
     #[cfg(not(target_arch = "wasm32"))]
     {
         rfd::FileDialog::new().pick_folder()
@@ -503,6 +507,9 @@ impl Dialog {
     /// Pick one or more files and run `then` with their paths (one file in
     /// a browser).
     pub fn pick_files(self, app: &mut App, then: impl FnOnce(&mut App, Vec<PathBuf>) + 'static) {
+        if cfg!(test) {
+            return;
+        }
         #[cfg(not(target_arch = "wasm32"))]
         {
             let mut d = rfd::FileDialog::new();
@@ -550,6 +557,9 @@ impl Dialog {
     /// dialog natively, `/download/<file name>` in a browser (write it with
     /// [`write`] to download it).
     pub fn save_path(self) -> Option<PathBuf> {
+        if cfg!(test) {
+            return None;
+        }
         if WEB {
             let name = self.file_name.unwrap_or_else(|| "download".into());
             return Some(PathBuf::from("/download").join(name));
@@ -572,6 +582,9 @@ impl Dialog {
 
     #[cfg(not(target_arch = "wasm32"))]
     fn native_pick(&self) -> Option<PathBuf> {
+        if cfg!(test) {
+            return None;
+        }
         let mut d = rfd::FileDialog::new();
         for (name, exts) in &self.filters {
             let exts: Vec<&str> = exts.iter().map(|e| e.as_str()).collect();
@@ -615,6 +628,19 @@ fn download(_name: &str, _bytes: &[u8]) -> std::io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn system_dialogs_cancel_in_unit_tests_without_running_callbacks() {
+        let mut app = App::headless();
+        assert_eq!(pick_folder(), None);
+        assert_eq!(Dialog::new().save_path(), None);
+        Dialog::new().pick_file(&mut app, |_, _| panic!("cancelled picker ran callback"));
+        Dialog::new().pick_files(&mut app, |_, _| panic!("cancelled picker ran callback"));
+        Dialog::new().save_file(&mut app, |_, _| panic!("cancelled save ran callback"));
+        Dialog::new().pick_into("cancelled-test-dialog");
+        assert_eq!(take_picked("cancelled-test-dialog"), None);
+    }
 
     #[test]
     fn picked_paths_are_taken_once() {

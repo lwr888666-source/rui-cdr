@@ -5,6 +5,7 @@ on:
     branches: [main]
     tags: ["v*"]
   pull_request:
+  workflow_call:
   # Run by hand (Actions > build > Run workflow): with a version, the run
   # makes the tag and the release itself, with the installers attached.
   workflow_dispatch:
@@ -23,6 +24,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
   # The tag this run releases ("v0.3.0"): a version tag pushed, or the
   # version asked for when run by hand; empty for every other run.
   RELEASE_TAG: ${{ (github.event_name == 'workflow_dispatch' && inputs.release != '') && format('v{0}', inputs.release) || (startsWith(github.ref, 'refs/tags/v') && github.ref_name || '') }}
@@ -30,6 +32,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
       # Pinned so the clippy gate matches what contributors run locally;
@@ -38,8 +41,17 @@ jobs:
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --workspace --exclude rui-cdr
-      - run: cargo clippy --workspace --exclude rui-cdr -- -D warnings
+        with:
+          cache-on-failure: true
+      - name: Linux test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libxkbcommon-dev libwayland-dev libgl1-mesa-dev libgtk-3-dev
+      - name: Package validation regression tests
+        shell: pwsh
+        run: ./scripts/tests/check-windows-package.tests.ps1
+      - run: cargo test --locked --workspace
+      - run: cargo clippy --locked --workspace --exclude tracedraw -- -D warnings
 
   build:
     needs: test
@@ -63,14 +75,16 @@ jobs:
             target: aarch64-unknown-linux-gnu
             name: linux-arm64
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.97.0
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.target }}
+          cache-on-failure: true
 
       - name: Version
         id: ver
@@ -93,7 +107,7 @@ jobs:
           cargo install cargo-deb
 
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }} -p rui-cdr -p rui-cdr-cli
+        run: cargo build --locked --release --target ${{ matrix.target }} -p tracedraw -p tracedraw-cli
 
       # The main window, after the splash screen and without it, can be
       # maximized and resized under a window manager (see
@@ -102,7 +116,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get install -y xvfb openbox x11-utils libgl1-mesa-dri libxkbcommon-x11-0
-          scripts/visual/window_check.sh target/${{ matrix.target }}/release/rui-cdr
+          bash scripts/visual/window_check.sh target/${{ matrix.target }}/release/tracedraw
 
       # Windows code signing, see docs/code-signing.md. Release builds (v*
       # tags) are signed once a provider is set up in the repository's
@@ -140,8 +154,8 @@ jobs:
           signing-account-name: ${{ vars.ARTIFACT_SIGNING_ACCOUNT }}
           certificate-profile-name: ${{ vars.ARTIFACT_SIGNING_PROFILE }}
           files: |
-            ${{ github.workspace }}\target\${{ matrix.target }}\release\rui-cdr.exe
-            ${{ github.workspace }}\target\${{ matrix.target }}\release\rui-cdr-cli.exe
+            ${{ github.workspace }}\target\${{ matrix.target }}\release\tracedraw.exe
+            ${{ github.workspace }}\target\${{ matrix.target }}\release\tracedraw-cli.exe
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
@@ -155,8 +169,8 @@ jobs:
         with:
           name: unsigned-programs
           path: |
-            target/${{ matrix.target }}/release/rui-cdr.exe
-            target/${{ matrix.target }}/release/rui-cdr-cli.exe
+            target/${{ matrix.target }}/release/tracedraw.exe
+            target/${{ matrix.target }}/release/tracedraw-cli.exe
           if-no-files-found: error
           retention-days: 1
 
@@ -184,13 +198,16 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force dist | Out-Null
           $src = "target\${{ matrix.target }}\release"
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DVersion=${{ steps.ver.outputs.version }} /DSrcDir="$PWD\$src" packaging\windows\tracedraw.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed: $LASTEXITCODE" }
           # The portable zip carries the settings folder, so it keeps its
           # preferences beside the program and writes nothing to %APPDATA%.
           Copy-Item -Recurse -Force packaging\windows\portable\rui-settings "$src\rui-settings"
-          Compress-Archive -Path "$src\rui-cdr.exe","$src\rui-cdr-cli.exe","$src\rui-settings",README.md,LICENSE-MIT,LICENSE-APACHE -DestinationPath "dist\tracedraw-${{ steps.ver.outputs.version }}-windows-x86_64-portable.zip"
+          Compress-Archive -Path "$src\tracedraw.exe","$src\tracedraw-cli.exe","$src\rui-settings",README.md,LICENSE-MIT,LICENSE-APACHE -DestinationPath "dist\tracedraw-${{ steps.ver.outputs.version }}-windows-x86_64-portable.zip"
+          ./scripts/check-windows-package.ps1 -Version '${{ steps.ver.outputs.version }}' -Directory dist -Install
 
       # The Microsoft Store package (the Store signs it). Attached to the
       # release once the Store identity variables are set; until then a
@@ -259,22 +276,22 @@ jobs:
         run: |
           mkdir -p dist
           arch=$([[ "${{ matrix.target }}" == aarch64* ]] && echo arm64 || echo x86_64)
-          packaging/macos/build-dmg.sh "${{ steps.ver.outputs.version }}" "target/${{ matrix.target }}/release" "$arch"
+          bash packaging/macos/build-dmg.sh "${{ steps.ver.outputs.version }}" "target/${{ matrix.target }}/release" "$arch"
           rm -rf dist/TraceDraw.app
 
       - name: Package (Linux)
         if: runner.os == 'Linux'
         run: |
           mkdir -p dist
-          cargo deb -p rui-cdr --target ${{ matrix.target }} --no-build --deb-version "${{ steps.ver.outputs.version }}" -o dist/
+          cargo deb -p tracedraw --target ${{ matrix.target }} --no-build --deb-version "${{ steps.ver.outputs.version }}" -o dist/
           arch=$([[ "${{ matrix.target }}" == aarch64* ]] && echo arm64 || echo x86_64)
-          packaging/linux/build-appimage.sh "${{ steps.ver.outputs.version }}" "target/${{ matrix.target }}/release" "$arch"
+          bash packaging/linux/build-appimage.sh "${{ steps.ver.outputs.version }}" "target/${{ matrix.target }}/release" "$arch"
           rm -f dist/linuxdeploy.AppImage
-          tar -C "target/${{ matrix.target }}/release" -czf "dist/rui-cdr-${{ steps.ver.outputs.version }}-linux-$arch.tar.gz" tracedraw tracedraw-cli
+          tar -C "target/${{ matrix.target }}/release" -czf "dist/tracedraw-${{ steps.ver.outputs.version }}-linux-$arch.tar.gz" tracedraw tracedraw-cli
 
       - uses: actions/upload-artifact@v4
         with:
-          name: rui-cdr-${{ matrix.name }}
+          name: tracedraw-${{ matrix.name }}
           path: dist/*
           if-no-files-found: error
 
@@ -283,6 +300,7 @@ jobs:
   web:
     needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@1.97.0
@@ -291,6 +309,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: wasm32
+          cache-on-failure: true
 
       - name: Version
         id: ver
@@ -329,25 +348,25 @@ jobs:
           echo "$RUNNER_TEMP/binaryen-${BINARYEN}/bin" >> "$GITHUB_PATH"
 
       - name: Build
-        run: cargo build --target wasm32-unknown-unknown --profile web -p rui-cdr
+        run: cargo build --locked --target wasm32-unknown-unknown --profile web -p tracedraw
 
       - name: Page
         run: |
           mkdir -p site dist
-          wasm-bindgen --target web --no-typescript --out-dir site target/wasm32-unknown-unknown/web/rui_cdr.wasm
+          wasm-bindgen --target web --no-typescript --out-dir site target/wasm32-unknown-unknown/web/tracedraw.wasm
           # Optimise for size and drop the name, debug and producer
           # sections before the size is measured.
-          wasm-opt -Oz --strip-debug --strip-producers -o site/rui_cdr_bg.wasm site/rui_cdr_bg.wasm
+          wasm-opt -Oz --strip-debug --strip-producers -o site/tracedraw_bg.wasm site/tracedraw_bg.wasm
           cp web/FONTS.md site/
           # The page with the module's size (the download shows its progress)
           # and the version.
-          size=$(wc -c < site/rui_cdr_bg.wasm | tr -d ' ')
+          size=$(wc -c < site/tracedraw_bg.wasm | tr -d ' ')
           sed -e "s/data-wasm-size=\"0\"/data-wasm-size=\"$size\"/" -e "s/@VERSION@/${{ steps.ver.outputs.version }}/" \
               web/index.html > site/index.html
           grep -q "data-wasm-size=\"$size\"" site/index.html
           if grep -q "@VERSION@" site/index.html; then exit 1; fi
           cp assets/icon/tracedraw-256.png site/icon-256.png
-          (cd site && zip -r "../dist/rui-cdr-${{ steps.ver.outputs.version }}-web.zip" .)
+          (cd site && zip -r "../dist/tracedraw-${{ steps.ver.outputs.version }}-web.zip" .)
 
       # The font folder of the published page (web/fonts.txt): free fonts
       # the page fetches the first time a drawing's text needs them, so
@@ -436,6 +455,10 @@ jobs:
           fi
           printf '\nCode signing policy: https://github.com/%s#code-signing-policy\n' "$GITHUB_REPOSITORY" >> release-notes.md
           cat release-notes.md
+      - name: Check release downloads
+        run: |
+          test -n "$(find artifacts -name '*-setup.exe' -print -quit)"
+          test -n "$(find artifacts -name '*-portable.zip' -print -quit)"
       - name: Drop the previous nightly
         if: env.RELEASE_TAG == ''
         env:
@@ -450,3 +473,4 @@ jobs:
           prerelease: ${{ env.RELEASE_TAG == '' }}
           make_latest: ${{ env.RELEASE_TAG != '' && 'true' || 'false' }}
           body_path: release-notes.md
+          fail_on_unmatched_files: true

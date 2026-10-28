@@ -80,7 +80,7 @@ fn mutate(data: &[u8], seed: u64) -> Vec<u8> {
 }
 
 fn usage() -> ExitCode {
-    eprintln!("usage:\n  rui-cdr-cli inspect <file.cdr> [chunk id]\n  rui-cdr-cli info <file.cdr|file.cmx|file.tdraw>\n  rui-cdr-cli icc <profile.icc>\n  rui-cdr-cli stress <file> [iterations]   mutation test of the file's reader\n  rui-cdr-cli convert <in.cdr|in.cmx|in.tdraw|in.svg|in.pdf|in.ai|in.eps|in.ps|in.prn|in.dxf|in.psd|in.emf|in.wmf|in.plt|in.txt|in.rtf|in.docx> <out.svg|out.pdf|out.eps|out.ps|out.prn|out.dxf|out.emf|out.wmf|out.plt|out.psd|out.html|out.png|out.tdraw|out.cdr>");
+    eprintln!("usage:\n  tracedraw-cli inspect <file.cdr> [chunk id]\n  tracedraw-cli info <file.cdr|file.cmx|file.tdraw>\n  tracedraw-cli icc <profile.icc>\n  tracedraw-cli stress <file> [iterations]   mutation test of the file's reader\n  tracedraw-cli convert <in.cdr|in.cmx|in.tdraw|in.svg|in.pdf|in.ai|in.eps|in.ps|in.prn|in.dxf|in.psd|in.emf|in.wmf|in.plt|in.txt|in.rtf|in.docx> <out.svg|out.pdf|out.eps|out.ps|out.prn|out.dxf|out.emf|out.wmf|out.plt|out.psd|out.html|out.png|out.tdraw|out.cdr>");
     ExitCode::from(2)
 }
 
