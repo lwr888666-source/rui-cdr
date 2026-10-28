@@ -738,7 +738,7 @@ pub enum Dialog {
         text: String,
     },
     DocumentProperties(Box<crate::ui::doc_properties::DocPropsState>),
-    /// Save on a drawing opened from a `.cdr` version TraceDraw does not
+    /// Save on a drawing opened from a `.cdr` version Rui does not
     /// save in: choose another version first.
     OldCdrVersion {
         version: u16,
@@ -751,7 +751,7 @@ pub enum Dialog {
         style: Option<(bool, bool)>,
         size: Option<f64>,
     },
-    /// Reset every preference to the defaults? (F8 while TraceDraw
+    /// Reset every preference to the defaults? (F8 while Rui
     /// starts, Options > Global.)
     ConfirmResetSettings,
     /// At start-up: drawings a session that ended without closing left in
@@ -809,6 +809,7 @@ pub enum Dialog {
     PaletteEditor(PaletteEditorState),
     NewDocument(crate::new_document::NewDocState),
     About,
+    ContactAuthor,
     /// File > GitHub.
     GithubOpen(crate::github::GithubForm),
     GithubSave(crate::github::GithubForm),
@@ -2189,6 +2190,7 @@ pub fn show(app: &mut App, ctx: &Context) {
             });
         }
         Dialog::About => crate::ui::about::about_dialog(app, ctx, &mut close),
+        Dialog::ContactAuthor => crate::ui::contact_author::show(ctx, &mut close),
         Dialog::WebNotice => {
             let text = format!("{}\n\n{}", tr("web.notice_title"), tr("web.notice_text"));
             match crate::ui::chrome::message_box(
@@ -5203,6 +5205,7 @@ mod tests {
                 "n".into(),
             )),
             Dialog::About,
+            Dialog::ContactAuthor,
             Dialog::WebNotice,
             Dialog::MacrosDesktopOnly,
             Dialog::GithubOpen(Default::default()),

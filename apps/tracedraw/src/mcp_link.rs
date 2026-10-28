@@ -1,5 +1,5 @@
 //! The open window as an MCP server: with Options > Global > General >
-//! "Let AI agents on this computer edit the open drawing" on, TraceDraw
+//! "Let AI agents on this computer edit the open drawing" on, Rui
 //! listens on a port of this computer only (127.0.0.1, a free one) and
 //! answers Model Context Protocol requests (JSON-RPC 2.0 in HTTP POSTs to
 //! `/mcp`) on the drawings in the window, with the tools of the headless
@@ -291,7 +291,7 @@ pub fn forward(info: Option<&LinkInfo>, line: &str) -> Option<String> {
         })
     };
     let Some(info) = info else {
-        return error("no TraceDraw window accepts agents: open TraceDraw and turn on Options > Global > General > Let AI agents on this computer edit the open drawing");
+        return error("no Rui window accepts agents: open Rui and turn on Options > Global > General > Let AI agents on this computer edit the open drawing");
     };
     let agent: ureq::Agent = ureq::Agent::config_builder()
         .timeout_global(Some(ANSWER_WAIT + Duration::from_secs(5)))
@@ -313,10 +313,10 @@ pub fn forward(info: Option<&LinkInfo>, line: &str) -> Option<String> {
             match status {
                 200 => Some(body),
                 202 => None,
-                _ => error(&format!("the TraceDraw window answered {status}")),
+                _ => error(&format!("the Rui window answered {status}")),
             }
         }
-        Err(e) => error(&format!("the TraceDraw window cannot be reached: {e}")),
+        Err(e) => error(&format!("the Rui window cannot be reached: {e}")),
     }
 }
 

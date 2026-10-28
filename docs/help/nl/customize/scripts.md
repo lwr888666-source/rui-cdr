@@ -38,7 +38,7 @@ expressie om die te evalueren op de plek waar het script gepauzeerd is.
 
 ## Scriptfilters {#filters}
 
-Een script dat `TraceDrawFilter` definieert, met een naam, extensies en een
+Een script dat `RuiFilter` definieert, met een naam, extensies en een
 functie `Import` of `Export`, voegt een bestandsindeling toe aan
 [[menu.file.import]] en [[menu.file.export]]. Klik op
 [[docker.install_filter]] om het te bewaren; [[docker.script_filters]] toont de

@@ -25,7 +25,7 @@ Checks: `ui::tests::the_touch_workspace_is_larger_and_keeps_real_sizes`,
 Everything below is part of the preferences (`settings.json` in the
 configuration folder, or the browser's local storage under
 `tracedraw.settings`, which belongs to that browser on that computer)
-and comes back when TraceDraw starts again: every page of Options, where
+and comes back when Rui starts again: every page of Options, where
 each bar sits (`bars`), which bars show (`shown_bars`: standard toolbar,
 property bar, toolbox, status bar, panels, rulers, Text, Zoom and
 Transform toolbars), the tool each toolbox group shows, hidden flyouts,
@@ -43,16 +43,16 @@ overprints, the view mode) and the dockers' own choices (`panels`: the
 Color docker's model and views, Align To, Use Outline, Distribute To).
 
 The preferences are saved whenever they change, written at most once a
-second (so a change lasts even when TraceDraw does not close normally,
+second (so a change lasts even when Rui does not close normally,
 and in the browser, where closing the tab saves nothing), on Options' OK,
-and when TraceDraw closes. They are looked at on a frame whose input
+and when Rui closes. They are looked at on a frame whose input
 could change them (a key, text, a click or release, the clipboard, a
 dropped file) and at most once a second otherwise (a frame that does
 not look asks for one when the second is up): pointer moves, drags in
 progress, the wheel and animation frames do not serialize them all,
 which cost every frame on slow computers (#616). Not while Options is open, whose Cancel puts
 them back. Values out of range in a file edited by hand are brought into
-range, and names TraceDraw does not know fall back to the defaults.
+range, and names Rui does not know fall back to the defaults.
 Preferences written before the bars shown were kept have no
 `shown_bars`: the built-in workspace's bars show, as before; without
 `dockers` the column holds Hints, Properties and Objects; without
@@ -72,7 +72,7 @@ docker area to the column. The docker's close button (x) and its tab's
 forward; with none left the docker area closes. Collapse (the two
 triangles) only folds the area. A docker opened from a menu or its
 shortcut joins the column; Help > Hints opens Hints and, ticked, closes
-it. The column is kept when TraceDraw closes, so a docker closed stays
+it. The column is kept when Rui closes, so a docker closed stays
 closed the next time.
 Checks: `app::tests::a_closed_docker_stays_closed_the_next_time`.
 
@@ -180,4 +180,4 @@ A file is never trusted:
   wrong shape, when it is imported, then nothing changes and the status
   bar says it is not a workspace file.
 - Given the status bar hidden and the Transform toolbar shown, when
-  TraceDraw starts again, then they are still hidden and shown.
+  Rui starts again, then they are still hidden and shown.

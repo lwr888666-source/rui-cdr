@@ -37,3 +37,5 @@ are never committed.
 The Rui application and native window use the project-provided artwork in `assets/icon_source.jpg`, exported to the PNG and ICO files in `assets/icon/rui*`.
 
 The Simplified Chinese installer messages are from `jrsoftware/issrc` at commit `2527da77ff7983514f535d19391a748c5d898336`, file `Files/Languages/ChineseSimplified.isl`, retrieved 2026-10-28. Maintainer: Zhenghan Yang (Kira). The original message headers are preserved; the accompanying Inno Setup license is in `packaging/windows/languages/LICENSE.Inno-Setup.txt`.
+
+The author supplied `apps/tracedraw/assets/author-contact.jpg` on 2026-10-28 and authorized its inclusion in Rui for Contact author / Feedback. The card is embedded unchanged.

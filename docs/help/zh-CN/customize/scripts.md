@@ -25,7 +25,7 @@ for (let i = 0; i < 5; i++) {
 
 ## 脚本过滤器 {#filters}
 
-定义了 `TraceDrawFilter`（带有名称、扩展名以及 `Import` 或 `Export` 函数）的脚本会向 [[menu.file.import]] 和 [[menu.file.export]] 添加一种文件格式。单击 [[docker.install_filter]] 保留它；[[docker.script_filters]] 列出已安装的过滤器，并带有 [[docker.edit]] 和 [[docker.remove]]。
+定义了 `RuiFilter`（带有名称、扩展名以及 `Import` 或 `Export` 函数）的脚本会向 [[menu.file.import]] 和 [[menu.file.export]] 添加一种文件格式。单击 [[docker.install_filter]] 保留它；[[docker.script_filters]] 列出已安装的过滤器，并带有 [[docker.edit]] 和 [[docker.remove]]。
 
 ## AI 助手（MCP） {#mcp}
 

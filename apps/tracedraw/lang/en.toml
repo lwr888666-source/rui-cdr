@@ -5144,3 +5144,10 @@ dialog.name_taken = "There is already an item called {name} here."
 dialog.no_window = "Rui could not open its window with any renderer: {reason}\n\nThe details are in {log}. Installing the graphics card's own driver usually helps. Please attach that file to an issue at https://github.com/lwr888666-source/rui-cdr/issues"
 dialog.open_entry = "Open"
 dialog.rename_entry = "Rename"
+
+# Author contact card.
+toolbar.contact_author = "Contact author / Feedback"
+toolbar.contact_author_desc = "Scan the QR code to contact the author or report an issue."
+contact.title = "Contact author / Feedback"
+contact.hint = "Scan with WeChat to contact the author or report a problem."
+contact.unavailable = "The contact image could not be loaded."

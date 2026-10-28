@@ -1,7 +1,7 @@
 # Saving files
 
 File > Save (Ctrl+S) writes the drawing back to its file. A drawing that
-has none (new, or opened from a format TraceDraw only reads or converts,
+has none (new, or opened from a format Rui only reads or converts,
 `.cdr` included), and File > Save As (Ctrl+Shift+S), open the Save
 Drawing dialog.
 
@@ -31,12 +31,12 @@ One window, 760 px wide, the same on every system:
 - **File name**: the drawing's file name, else its title, else
   "Graphic1", with the type's extension; a name typed with either
   extension, or none, gets the chosen type's.
-- **Save as type**: TraceDraw (`*.tdraw`, the native JSON format, which
+- **Save as type**: Rui (`*.tdraw`, the native JSON format, which
   keeps everything) or CDR files (`*.cdr`). It starts at `.cdr` for a
   drawing that came from or was saved to a `.cdr` file, and for a
   drawing without a file when Options > Global > File Formats > Save
   new drawings as .cdr files is on.
-- **Version**: for TraceDraw files the `.tdraw` format version, a
+- **Version**: for Rui files the `.tdraw` format version, a
   choice once there is more than one; while there is only one the row
   is left empty (`docs/tdraw-format.md`, #613); for `.cdr` 27 down to 14, each with its
   release name ("v14 (X4)", "v27 (2026)").
@@ -51,7 +51,7 @@ One window, 760 px wide, the same on every system:
   choices stay for the next Save As and for Save. Embed fonts starts
   off, so that drawings saved one after another do not each carry a copy
   of the same fonts (#886).
-- **Embed fonts (size)** for TraceDraw files: on (it starts off, #886), the
+- **Embed fonts (size)** for Rui files: on (it starts off, #886), the
   installed fonts the text uses go into the `.tdraw` file, one file per
   face (the regular face for a bold or italic the family lacks), where
   the font's licence allows use in documents, so the drawing keeps its
@@ -87,11 +87,11 @@ version decides who can open a file:
   `pick_drag_tests::the_cdr_version_chosen_in_options_survives_a_restart_and_starts_save_as`).
 - The version chosen stays with the drawing: Save writes the same
   version again without asking. Each open drawing keeps its own.
-- TraceDraw saves only the versions checked in other programs, 14 to 27.
+- Rui saves only the versions checked in other programs, 14 to 27.
   A drawing opened from an older `.cdr` (versions 1 to 13) keeps its
   file, but Save does not write that version: the status line says
   which version Save writes ("Save writes version 14."), and Save opens
-  "Older file version": the drawing came from version N, TraceDraw does
+  "Older file version": the drawing came from version N, Rui does
   not save in it, choose a version from 14 to 27; Choose Version...
   (or Enter) opens Save As on version 14, Cancel saves nothing. Once
   saved in a checked version, Save writes it without asking. A file
@@ -110,12 +110,12 @@ What each version's file holds is in `docs/cdr-format.md`, Writing.
 ## Checks
 
 - Given a folder with a subfolder, a `.cdr` and a `.txt` file, the
-  TraceDraw type lists the subfolder only and CDR the subfolder and the
+  Rui type lists the subfolder only and CDR the subfolder and the
   `.cdr` file; saving "poster" as CDR version 15 with a title, subject
   and rating writes `poster.cdr` there (version 15), sets the properties
   and remembers the folder; the next Save As starts there as `.cdr`
   version 27; an existing name asks first and Replace overwrites it; a
-  TraceDraw file is written with its own extension, in the format version
+  Rui file is written with its own extension, in the format version
   chosen (0), which Ctrl+S keeps and opening the file brings back
   (`ui::save_as::tests::save_as_chooses_folder_name_type_version_and_properties`).
 - An empty name, a bare extension and a missing folder save nothing and
@@ -130,7 +130,7 @@ What each version's file holds is in `docs/cdr-format.md`, Writing.
   (`ui::save_as::tests::a_drawing_opened_from_a_cdr_file_keeps_its_version`).
 - Options set to version 15 and `.cdr` for new drawings: Ctrl+Shift+S on
   a new drawing opens Save As at CDR version 15; with the defaults it
-  opens at TraceDraw, version 27 for `.cdr`
+  opens at Rui, version 27 for `.cdr`
   (`pick_drag_tests::save_as_starts_at_the_cdr_type_and_version_the_options_set`).
 - A drawing with a CMYK profile offers it by name and size; saved with
   the box on, the version 27 file holds the profile, with the box off it

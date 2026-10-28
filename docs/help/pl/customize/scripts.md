@@ -36,7 +36,7 @@ aby obliczyć je w miejscu, w którym skrypt jest wstrzymany.
 
 ## Filtry skryptowe {#filters}
 
-Skrypt, który definiuje `TraceDrawFilter` z nazwą, rozszerzeniami i funkcją
+Skrypt, który definiuje `RuiFilter` z nazwą, rozszerzeniami i funkcją
 `Import` lub `Export`, dodaje format pliku do poleceń [[menu.file.import]]
 i [[menu.file.export]]. Kliknij [[docker.install_filter]], aby go zachować;
 [[docker.script_filters]] zawiera listę zainstalowanych filtrów z przyciskami

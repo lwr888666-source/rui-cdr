@@ -29,7 +29,7 @@ use tracedraw_core::{Command, ShapeId};
 /// At most this many copies come from one Apply.
 pub const MAX_COPIES: u32 = 500;
 
-/// The docker's fields, kept while TraceDraw runs. Distances are in
+/// The docker's fields, kept while Rui runs. Distances are in
 /// millimetres, angles in degrees, scales in percent; absolute positions
 /// count from the ruler origin, as the rulers do.
 #[derive(Debug, Clone, PartialEq)]

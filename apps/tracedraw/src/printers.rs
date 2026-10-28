@@ -2,7 +2,7 @@
 //! printers CUPS knows (Linux and macOS), listed by `lpstat` and printed
 //! to with `lp`, which takes the print PDF as it is; on Windows every
 //! printer Windows has, local ones and network connections alike, listed
-//! and printed to through PowerShell (the sheets drawn by TraceDraw and
+//! and printed to through PowerShell (the sheets drawn by Rui and
 //! handed to the printer as pictures, so no PDF program is needed). In
 //! the browser the list is empty and the print goes through the PDF
 //! viewer, as before. See docs/behavior/printing.md.
@@ -677,7 +677,7 @@ mod tests {
 
     /// Write the print script for the printer in `PRINTER_NAME`, one A4
     /// sheet, to the path in `PRINT_SCRIPT_OUT` (a check on a Windows
-    /// machine runs it as TraceDraw does); `OLD_CONTROLLER=1` leaves the
+    /// machine runs it as Rui does); `OLD_CONTROLLER=1` leaves the
     /// standard controller out, as before #614.
     #[test]
     #[ignore]

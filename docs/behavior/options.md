@@ -1,11 +1,11 @@
 # Options dialogs
 
-Tools > Options is a submenu: TraceDraw
+Tools > Options is a submenu: Rui
 (Ctrl+J), Customization, Tools, Global, Workspaces and AI each open the
 Options window on their pages. Layout > Document Options opens it on the
 document's pages (also a double-click on a ruler, the page border or its
 shadow). The window has a tab for each of them along the top, so every
-option is a click away: TraceDraw, Customization, Tools, Global,
+option is a click away: Rui, Customization, Tools, Global,
 Workspaces, AI and, while a drawing is open, Document Options. A tab
 shows its set's page list and the page of that set shown last (else its
 first page); the title follows the tab, and OK and Cancel cover what
@@ -29,7 +29,7 @@ was changed on every tab (#633).
   the close button and Esc put back everything the dialog changed,
   including document settings (their commands are undone).
 
-## TraceDraw Options
+## Rui Options
 
 | Page | Settings (defaults) |
 |---|---|
@@ -41,8 +41,8 @@ was changed on every tab (#633).
 | Snapping | Snap to objects, page, guidelines, grid, baseline grid, pixels; snapping radius (10 px); show snap location marks and the screen tip (on); the modes, each with its mark (all on), Select All, Deselect All |
 | Alignment Guides | On or off; guides for the selection as one or each object; edges, centres, the page, equal spacing, equal sizes; margins with offset and inset; colour and line style; Reset (see `live-guides.md`) |
 | Dynamic Guides | On or off; angles (check boxes every 15 degrees, others added by value); distance and angle tip; tick marks, their spacing, snap to ticks; colour and line style; Reset (see `live-guides.md`) |
-| Save | Back up original file before saving (on): `backup_of_<name>` next to the file or in a chosen folder; Auto-backup every 20 minutes (on): each open drawing with unsaved changes as `AutoBackup_of_<name>.tdraw` in `TraceDraw` under the temporary folder or a chosen folder; a session that ended without closing offers them at the next start (see `recovery.md`) |
-| Text | Five tabs (`options_text_tab`). Display: keyboard text increment (1 pt: Ctrl+8 and Ctrl+2 grow and shrink the selected text), text units (points at first, any unit of the rulers: font sizes on the property bar, the Text docker, the table bar, this page and the object information show and take sizes in it, a unit typed with the value counts; sizes are kept in points, `settings.text_units`, `pick_drag_tests::font_sizes_show_and_type_in_the_text_units`, #529), default font and size (of new text: they do not follow the text selected and can be changed while a text is selected; with no text selected the Text tool's bar shows and sets them, `the_default_text_font_does_not_follow_the_selection`, #449), non-printing characters. Paragraph Text: show text frames, hyphenation, hyphenation patterns (Built-in (English) or a `hyph_*.dic` file found in the dictionary folders, shown without `hyph_`; see `text.md`). Fonts: show recently used fonts at the top of the font lists (on) and how many (5, 1 to 20; the lists keep the last 20), font sample size. Spelling: ignore words with numbers, ignore words in capitals (both off, also under Options in the Spell Checker), add corrections to Autocorrect (off: a word replaced in the Spell Checker becomes a replacement row, its row replaced if it has one). Dictionaries: the Hunspell dictionaries found, each with a check box, TraceDraw's dictionaries folder with Open Folder, Also read dictionaries from (a folder, Browse and Clear) and Read Again (see `writing-tools.md`). Autocorrect: see `writing-tools.md`; Text > Writing Tools > Autocorrect opens this tab |
+| Save | Back up original file before saving (on): `backup_of_<name>` next to the file or in a chosen folder; Auto-backup every 20 minutes (on): each open drawing with unsaved changes as `AutoBackup_of_<name>.tdraw` in `Rui` under the temporary folder or a chosen folder; a session that ended without closing offers them at the next start (see `recovery.md`) |
+| Text | Five tabs (`options_text_tab`). Display: keyboard text increment (1 pt: Ctrl+8 and Ctrl+2 grow and shrink the selected text), text units (points at first, any unit of the rulers: font sizes on the property bar, the Text docker, the table bar, this page and the object information show and take sizes in it, a unit typed with the value counts; sizes are kept in points, `settings.text_units`, `pick_drag_tests::font_sizes_show_and_type_in_the_text_units`, #529), default font and size (of new text: they do not follow the text selected and can be changed while a text is selected; with no text selected the Text tool's bar shows and sets them, `the_default_text_font_does_not_follow_the_selection`, #449), non-printing characters. Paragraph Text: show text frames, hyphenation, hyphenation patterns (Built-in (English) or a `hyph_*.dic` file found in the dictionary folders, shown without `hyph_`; see `text.md`). Fonts: show recently used fonts at the top of the font lists (on) and how many (5, 1 to 20; the lists keep the last 20), font sample size. Spelling: ignore words with numbers, ignore words in capitals (both off, also under Options in the Spell Checker), add corrections to Autocorrect (off: a word replaced in the Spell Checker becomes a replacement row, its row replaced if it has one). Dictionaries: the Hunspell dictionaries found, each with a check box, Rui's dictionaries folder with Open Folder, Also read dictionaries from (a folder, Browse and Clear) and Read Again (see `writing-tools.md`). Autocorrect: see `writing-tools.md`; Text > Writing Tools > Autocorrect opens this tab |
 
 ## Customization
 
@@ -73,7 +73,7 @@ Spiral (revolutions, symmetrical or logarithmic), Graph Paper and Table
 ## Global and Workspaces
 
 Global > General: user interface language; check for updates at start (on, desktop, see `updates.md`); Reset all settings... (asks
-first, then puts every preference back to how TraceDraw comes, keeping
+first, then puts every preference back to how Rui comes, keeping
 the recent drawings, the last folder and the window's size; drawings are
 not touched). Global > File Locations: where the preferences and
 auto-backups are kept. Workspaces: the workspace in use, and exporting
@@ -120,7 +120,7 @@ the import's undo step.
 Saving .cdr files: the Version Save As starts at and new drawings are
 saved in (`cdr_version`, 27 by default, 14 to 27; a value out of range
 from a file is brought into it); a drawing opened from (or saved to) a
-`.cdr` file keeps its own version for Save and Save As when TraceDraw
+`.cdr` file keeps its own version for Save and Save As when Rui
 saves that version, and a drawing started from a template takes this one
 (`files.md`, #613).
 Save new drawings as .cdr files (`save_new_as_cdr`, off): Save As
@@ -152,7 +152,7 @@ message never replaces another dialog that is open.
 ### Pages with no equivalent
 
 Pen settings (pressure curves for tablets), Tablet Mode, VBA and
-plug-ins have no page: TraceDraw reads no pen pressure, has its own
+plug-ins have no page: Rui reads no pen pressure, has its own
 workspaces instead of a tablet mode, scripts in JavaScript (Scripts
 panel) and hosts no plug-ins.
 
@@ -281,8 +281,8 @@ Windows; elsewhere nothing is read and the defaults apply):
   for; `packaging/windows/portable`), so it is portable as unzipped;
   deleting the folder makes that copy use the system's place
   (`settings::tests::the_portable_zip_ships_the_settings_folder`).
-- Otherwise the system's place: `%APPDATA%\TraceDraw` on Windows,
-  `~/Library/Application Support/TraceDraw` on macOS,
+- Otherwise the system's place: `%APPDATA%\Rui` on Windows,
+  `~/Library/Application Support/Rui` on macOS,
   `$XDG_CONFIG_HOME/tracedraw` (or `~/.config/tracedraw`) elsewhere; the
   browser keeps them in its local storage.
 

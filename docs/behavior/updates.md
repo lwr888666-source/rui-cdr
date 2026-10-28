@@ -12,7 +12,7 @@ Updates opens the releases page).
   Mac's processor; the Linux AppImage, else the tar.gz; the release page
   when none fits), Release notes, Skip this version and Close. Download
   opens the link; the system's installer does the installing.
-- Install in place (Linux AppImage only): when TraceDraw runs as an
+- Install in place (Linux AppImage only): when Rui runs as an
   AppImage (the AppImage runtime names its file in `APPIMAGE`) and the
   release's AppImage has a SHA-256 digest (GitHub gives one for every
   uploaded file), the dialog offers Install first. It downloads the

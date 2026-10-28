@@ -5144,3 +5144,10 @@ dialog.name_taken = "此处已有名为 {name} 的项目。"
 dialog.no_window = "Rui 无法用任何渲染器打开窗口：{reason}\n\n详细信息在 {log} 中。安装显卡自带的驱动程序通常会有帮助。请将该文件附加到 https://github.com/lwr888666-source/rui-cdr/issues 上的问题中" # mt
 dialog.open_entry = "打开"
 dialog.rename_entry = "重命名"
+
+# Author contact card.
+toolbar.contact_author = "联系作者 / 反馈问题"
+toolbar.contact_author_desc = "扫描二维码，联系作者或反馈问题。"
+contact.title = "联系作者 / 反馈问题"
+contact.hint = "使用微信扫一扫，联系作者或反馈问题。"
+contact.unavailable = "无法加载联系作者的图片。"

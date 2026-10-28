@@ -203,7 +203,7 @@ pub struct FormatPrefs {
     pub import_place: ImportPlace,
     /// The `.cdr` version Save As starts at (#613).
     pub cdr_version: u16,
-    /// Save As starts at `.cdr` rather than TraceDraw for a drawing
+    /// Save As starts at `.cdr` rather than Rui for a drawing
     /// without a file (#613).
     pub save_new_as_cdr: bool,
     /// File > Export goes straight to the file with the last choices

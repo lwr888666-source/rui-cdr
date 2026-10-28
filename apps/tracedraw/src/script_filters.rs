@@ -1,5 +1,5 @@
 //! Script filters: file formats read or written by JavaScript. A filter
-//! script defines `TraceDrawFilter` (see `docs/behavior/script-filters.md`);
+//! script defines `RuiFilter` (see `docs/behavior/script-filters.md`);
 //! Scripts panel > Install as Filter keeps it in the settings, and File >
 //! Import and File > Export offer its formats.
 
@@ -92,7 +92,7 @@ mod tests {
 
     /// A format of one rectangle per line: "x y w h".
     const BOXES: &str = r#"
-const TraceDrawFilter = {
+const RuiFilter = {
   name: 'Boxes',
   extensions: ['.BOX', 'bx'],
   Import(text) {
@@ -108,6 +108,19 @@ const TraceDrawFilter = {
   },
 };
 "#;
+
+    #[test]
+    fn rui_filters_keep_support_for_existing_filter_scripts() {
+        let current = crate::scripting::filter_info(BOXES).unwrap();
+        let legacy = crate::scripting::filter_info(&BOXES.replace("RuiFilter", "TraceDrawFilter")).unwrap();
+        assert_eq!(current.name, legacy.name);
+        assert_eq!(current.extensions, legacy.extensions);
+        let doc = tracedraw_core::Document::default();
+        assert_eq!(
+            crate::scripting::run_filter_export(doc.clone(), &current).unwrap(),
+            crate::scripting::run_filter_export(doc, &legacy).unwrap()
+        );
+    }
 
     fn temp_file(name: &str, text: &str) -> std::path::PathBuf {
         let dir = std::env::temp_dir().join(format!("td-filter-{}", std::process::id()));
@@ -136,10 +149,10 @@ const TraceDrawFilter = {
         // Scripts that are no filter.
         for bad in [
             "print('hi')",
-            "const TraceDrawFilter = {extensions: ['a'], Import() {}};",
-            "const TraceDrawFilter = {name: 'A', Import() {}};",
-            "const TraceDrawFilter = {name: 'A', extensions: ['a']};",
-            "const TraceDrawFilter = {name: 'A', extensions: ['a'], Import() {}}; while (true) {}",
+            "const RuiFilter = {extensions: ['a'], Import() {}};",
+            "const RuiFilter = {name: 'A', Import() {}};",
+            "const RuiFilter = {name: 'A', extensions: ['a']};",
+            "const RuiFilter = {name: 'A', extensions: ['a'], Import() {}}; while (true) {}",
             "syntax error here (",
         ] {
             assert!(scripting::filter_info(bad).is_err(), "{bad}");
@@ -213,7 +226,7 @@ const TraceDrawFilter = {
     #[test]
     fn path_data_is_in_page_millimetres() {
         let src = r#"
-const TraceDrawFilter = { name: 'Paths', extensions: ['pd'],
+const RuiFilter = { name: 'Paths', extensions: ['pd'],
   Export() { return ActivePage.Shapes.All.Shapes.map(s => s.PathData).join('\n'); } };
 "#;
         let f = scripting::filter_info(src).expect("filter");

@@ -1,5 +1,6 @@
 # The installed name, native title/icon and Chinese menus share the same identity.
 from PIL import Image
+import os
 
 assert alive(), "Rui must stay running"
 windows = [w for w in d.screen().root.query_tree().children
@@ -20,3 +21,17 @@ pixels = [(a << 24) | (r << 16) | (g << 8) | b for r, g, b, a in expected.getdat
 assert values[2:] == pixels, "The window must use the Rui artwork"
 shot("rui_identity_zh")
 print("Rui title, native icon and Chinese welcome screen verified")
+
+# Locate the red outline heart in the standard toolbar, without language-specific coordinates.
+image = Image.open(os.path.join(os.environ["TRACEDRAW_SHOTS"], "rui_identity_zh.png")).convert("RGB")
+heart = [(x, y) for y in range(20, 100) for x in range(350, image.width)
+         if image.getpixel((x, y)) == (220, 56, 82)]
+assert len(heart) >= 8, "The contact heart must be visible after AI Generate"
+x = (min(p[0] for p in heart) + max(p[0] for p in heart)) // 2
+y = (min(p[1] for p in heart) + max(p[1] for p in heart)) // 2
+click(x, y)
+time.sleep(0.8)
+shot("rui_contact_author_zh")
+assert alive(), "The contact dialog must not crash Rui"
+key("Escape")
+print("Contact author dialog opened from the heart and closed with Escape")

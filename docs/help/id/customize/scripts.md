@@ -37,7 +37,7 @@ dijeda.
 
 ## Filter skrip {#filters}
 
-Skrip yang mendefinisikan `TraceDrawFilter`, dengan nama, ekstensi, dan fungsi
+Skrip yang mendefinisikan `RuiFilter`, dengan nama, ekstensi, dan fungsi
 `Import` atau `Export`, menambahkan format berkas ke [[menu.file.import]] dan
 [[menu.file.export]]. Klik [[docker.install_filter]] untuk menyimpannya;
 [[docker.script_filters]] mencantumkan filter yang terpasang dengan

@@ -37,7 +37,7 @@ for (let i = 0; i < 5; i++) {
 
 ## Фильтры-сценарии {#filters}
 
-Сценарий, который определяет `TraceDrawFilter` с именем, расширениями и
+Сценарий, который определяет `RuiFilter` с именем, расширениями и
 функцией `Import` или `Export`, добавляет формат файла в
 [[menu.file.import]] и [[menu.file.export]]. Нажмите
 [[docker.install_filter]], чтобы сохранить его; [[docker.script_filters]]

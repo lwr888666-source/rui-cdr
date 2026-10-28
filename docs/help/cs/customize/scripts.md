@@ -36,7 +36,7 @@ skript pozastaven.
 
 ## Filtry skriptů {#filters}
 
-Skript, který definuje `TraceDrawFilter` s názvem, příponami a funkcí
+Skript, který definuje `RuiFilter` s názvem, příponami a funkcí
 `Import` nebo `Export`, přidá formát souborů do [[menu.file.import]] a
 [[menu.file.export]]. Kliknutím na [[docker.install_filter]] jej uchováte;
 [[docker.script_filters]] uvádí nainstalované filtry s tlačítky

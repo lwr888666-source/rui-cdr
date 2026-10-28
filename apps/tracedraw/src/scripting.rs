@@ -44,7 +44,7 @@ struct HostInner {
     /// The drawing's file, when it has one (`Document.FullFileName`).
     file: Option<String>,
     /// The object model of VBA macros (see `scripting/vg.rs`) instead of
-    /// TraceDraw's own JavaScript one.
+    /// Rui's own JavaScript one.
     vg: bool,
     /// What the app shows that macros read: see [`vg::AppView`].
     view: vg::AppView,
@@ -88,7 +88,7 @@ const console = { log: print, error: print, warn: print, info: print };
 function MsgBox(t) { print(t); }
 "#;
 
-/// TraceDraw's own JavaScript object model (lengths in millimetres).
+/// Rui's own JavaScript object model (lengths in millimetres).
 const PRELUDE: &str = r#"
 class Color {
   constructor(v) { this.v = v || {model:'rgb', r:0, g:0, b:0}; }
@@ -582,7 +582,7 @@ fn blank_host(doc: Document, trust: Trust) -> HostInner {
     }
 }
 
-/// Read a filter script: what `TraceDrawFilter` says about itself. The
+/// Read a filter script: what `RuiFilter` says about itself. The
 /// script runs with the limits of untrusted scripts against an empty
 /// drawing, and nothing it does is kept.
 pub fn filter_info(src: &str) -> Result<ScriptFilter, String> {
@@ -591,18 +591,20 @@ pub fn filter_info(src: &str) -> Result<ScriptFilter, String> {
         blank_host(doc, Trust::Untrusted),
         src,
         Some(
-            "typeof TraceDrawFilter === 'undefined' ? '' : JSON.stringify({\
-             name: String(TraceDrawFilter.name || ''),\
-             extensions: [].concat(TraceDrawFilter.extensions || []).map(String),\
-             import: typeof TraceDrawFilter.Import === 'function',\
-             export: typeof TraceDrawFilter.Export === 'function'})",
+            "((filter) => !filter ? '' : JSON.stringify({\
+             name: String(filter.name || ''),\
+             extensions: [].concat(filter.extensions || []).map(String),\
+             import: typeof filter.Import === 'function',\
+             export: typeof filter.Export === 'function'}))(\
+             typeof RuiFilter !== 'undefined' ? RuiFilter : \
+             typeof TraceDrawFilter !== 'undefined' ? TraceDrawFilter : undefined)",
         ),
         None,
     )?;
     ev.result?;
     let text = ev.text.unwrap_or_default();
     if text.is_empty() {
-        return Err("the script defines no TraceDrawFilter".into());
+        return Err("the script defines no RuiFilter".into());
     }
     let v: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
     let name = v["name"].as_str().unwrap_or("").trim().to_string();
@@ -624,13 +626,13 @@ pub fn filter_info(src: &str) -> Result<ScriptFilter, String> {
     let import = v["import"].as_bool().unwrap_or(false);
     let export = v["export"].as_bool().unwrap_or(false);
     if name.is_empty() {
-        return Err("TraceDrawFilter has no name".into());
+        return Err("RuiFilter has no name".into());
     }
     if extensions.is_empty() {
-        return Err("TraceDrawFilter has no extensions".into());
+        return Err("RuiFilter has no extensions".into());
     }
     if !import && !export {
-        return Err("TraceDrawFilter has neither Import nor Export".into());
+        return Err("RuiFilter has neither Import nor Export".into());
     }
     Ok(ScriptFilter {
         name,
@@ -652,7 +654,7 @@ pub fn run_filter_import(
     let ev = evaluate(
         host_for(app, Trust::User),
         &filter.source,
-        Some("TraceDrawFilter.Import(__input)"),
+        Some("(typeof RuiFilter !== 'undefined' ? RuiFilter : TraceDrawFilter).Import(__input)"),
         Some(text),
     )?;
     ev.result?;
@@ -676,7 +678,7 @@ pub fn run_filter_export(doc: Document, filter: &ScriptFilter) -> Result<String,
     let ev = evaluate(
         blank_host(doc, Trust::User),
         &filter.source,
-        Some("TraceDrawFilter.Export()"),
+        Some("(typeof RuiFilter !== 'undefined' ? RuiFilter : TraceDrawFilter).Export()"),
         None,
     )?;
     ev.result?;

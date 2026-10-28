@@ -1,7 +1,7 @@
 # Browser version
 
 The same editor compiled to WebAssembly (`wasm32-unknown-unknown`) and
-drawn with WebGL 2 by eframe, so TraceDraw runs in a browser with nothing
+drawn with WebGL 2 by eframe, so Rui runs in a browser with nothing
 to install. CI publishes it to GitHub Pages; it is not one of the
 release downloads. Each run keeps the folder as the `web-site` artifact
 (`tracedraw-<version>-web.zip`, a static folder: serve it from any web
@@ -29,13 +29,13 @@ refuse to load modules from `file://`).
 While the module downloads, the page shows the desktop app's splash
 screen on the grey of the drawing window: the same artwork (`splash.rs`,
 `ui/brand.rs`), name, tagline, copyright and version, with the status
-"Loading TraceDraw: 3.5 of 5.7 MB (61%)" and the progress bar under it
+"Loading Rui: 3.5 of 5.7 MB (61%)" and the progress bar under it
 (the build writes the module's size into the page as `data-wasm-size`
 and the version for `@VERSION@`; without the size the page counts the
 megabytes and the bar creeps towards 90 %). The download fills the bar
 to 90 %, "Preparing the workspace..." the rest while the browser
 compiles the module; the splash goes when the editor is up. Under the
-splash, small: "TraceDraw (alpha): open-source vector editor that opens
+splash, small: "Rui (alpha): open-source vector editor that opens
 .cdr files. Written in Rust, free under the MIT or Apache-2.0 license.",
 which screens it suits (a desktop browser with a mouse and keyboard; on
 a tablet the Touch workspace; a phone screen is too small for editing)

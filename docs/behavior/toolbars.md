@@ -93,7 +93,7 @@ split by thin lines:
    with a grey frame) while on.
 7. Snap Off (Alt+Q), pressed while snapping is off; Snap To with the
    snapping list.
-8. Options (the TraceDraw options).
+8. Options (the Rui options).
 9. Launch: Font Manager, Welcome Screen, Color Management.
 
 Buttons that need a drawing, and Snap To, are disabled on the Welcome

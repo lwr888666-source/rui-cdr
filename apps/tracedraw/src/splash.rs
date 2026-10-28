@@ -1,4 +1,4 @@
-//! The splash screen. While TraceDraw starts, a small borderless window
+//! The splash screen. While Rui starts, a small borderless window
 //! centred on the screen shows the application icon, the name, the
 //! tagline and the version over the brand artwork (see `ui/brand.rs`),
 //! with what is loading and a progress bar. The system font list is read

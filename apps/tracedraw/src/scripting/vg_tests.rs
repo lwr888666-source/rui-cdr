@@ -664,7 +664,7 @@ fn members_without_a_counterpart_raise_named_errors() {
         let mut app = App::headless();
         let err = run_vgcore(&mut app, src, "Macro").expect_err(member);
         assert!(err.contains(member), "{src}: {err}");
-        assert!(err.contains("not available in TraceDraw"), "{err}");
+        assert!(err.contains("not available in Rui"), "{err}");
     }
 }
 

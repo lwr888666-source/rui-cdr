@@ -5144,3 +5144,10 @@ dialog.name_taken = "Burada zaten {name} adlı bir öğe var."
 dialog.no_window = "Rui penceresini hiçbir oluşturucuyla açamadı: {reason}\n\nAyrıntılar {log} dosyasında. Ekran kartının kendi sürücüsünü kurmak genellikle işe yarar. Lütfen bu dosyayı https://github.com/lwr888666-source/rui-cdr/issues adresinde bir kayda ekleyin" # mt
 dialog.open_entry = "Aç"
 dialog.rename_entry = "Yeniden Adlandır"
+
+# Author contact card.
+toolbar.contact_author = "Contact author / Feedback"
+toolbar.contact_author_desc = "Scan the QR code to contact the author or report an issue."
+contact.title = "Contact author / Feedback"
+contact.hint = "Scan with WeChat to contact the author or report a problem."
+contact.unavailable = "The contact image could not be loaded."

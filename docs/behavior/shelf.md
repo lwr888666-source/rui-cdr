@@ -1,7 +1,7 @@
 # Shelf
 
 A docker that keeps objects apart from any drawing, to place them in
-this drawing or another one, in this session or after TraceDraw
+this drawing or another one, in this session or after Rui
 restarts. Code: `shelf.rs` (items, file, placing, pictures) and
 `ui/shelf_docker.rs` (the docker).
 
@@ -91,7 +91,7 @@ restarts. Code: `shelf.rs` (items, file, placing, pictures) and
   objects are left out and names cleaned; a file from a newer version is
   read for what this version knows.
 - The shelf is read the first time the docker shows or something is
-  added, not while TraceDraw starts.
+  added, not while Rui starts.
 
 ## Checks
 

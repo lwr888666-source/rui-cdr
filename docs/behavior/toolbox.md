@@ -70,7 +70,7 @@ Each tool's pointer says which tool is active (code: `ui/cursors.rs`):
 | Every other tool (shapes, dimensions, connectors, effects, fills, Crop, Knife, Table, ...) | the cross hair with the tool's icon at its lower right on a light patch |
 
 The arrows (pointing, moving, resizing) are the system's own. The cross
-hair and the text I-beam are painted by TraceDraw, black on a white
+hair and the text I-beam are painted by Rui, black on a white
 halo, with the system pointer hidden, so they show on a page of any
 colour: the system's invert what is under them, and on Windows they can
 show white on a white page (#655,

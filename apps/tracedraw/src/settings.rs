@@ -1,6 +1,6 @@
 //! User settings persisted between sessions: language, recent files,
 //! workspace flags, tool defaults. Stored as JSON in the platform config
-//! directory (`%APPDATA%\TraceDraw`, `~/Library/Application Support/TraceDraw`,
+//! directory (`%APPDATA%\Rui`, `~/Library/Application Support/Rui`,
 //! `$XDG_CONFIG_HOME/tracedraw`).
 
 use serde::{Deserialize, Serialize};
@@ -189,7 +189,7 @@ pub struct Settings {
     /// as `ui_scale`, which is ignored.
     #[serde(default)]
     pub ui_size: f32,
-    /// Options > General: show the splash screen while TraceDraw starts.
+    /// Options > General: show the splash screen while Rui starts.
     #[serde(default = "default_true")]
     pub show_splash: bool,
     /// Options > General: draw the window with the graphics card (off:
@@ -286,11 +286,11 @@ pub struct Settings {
     /// by default).
     #[serde(default = "default_true")]
     pub treat_all_filled: bool,
-    /// Options > TraceDraw > Edit: how visible the objects outside the
+    /// Options > Rui > Edit: how visible the objects outside the
     /// one in focus stay, in percent.
     #[serde(default = "default_focus_visibility")]
     pub focus_visibility: u8,
-    /// Options > TraceDraw > Edit: a double click on a group brings it
+    /// Options > Rui > Edit: a double click on a group brings it
     /// into focus.
     #[serde(default = "default_true")]
     pub focus_double_click: bool,
@@ -348,7 +348,7 @@ pub struct Settings {
     /// What a fill or outline chosen with nothing selected changes.
     #[serde(default)]
     pub defaults: crate::defaults::DefaultsPrefs,
-    /// The bars shown when TraceDraw was left; none in preferences written
+    /// The bars shown when Rui was left; none in preferences written
     /// before they were kept (the workspace's own bars then show).
     #[serde(default)]
     pub shown_bars: Option<ShownBars>,
@@ -533,7 +533,7 @@ fn default_desktop() -> [u8; 3] {
 }
 
 /// How many one-time upgrades `Settings::upgrade` knows.
-const UPGRADES: u32 = 3;
+const UPGRADES: u32 = 4;
 
 fn default_outline_units() -> String {
     "pt".into()
@@ -1279,7 +1279,7 @@ pub struct SpellingPrefs {
     /// A word the spell checker replaces is added to the Autocorrect
     /// replacements, so typing it wrong again corrects it.
     pub add_to_autocorrect: bool,
-    /// A folder of Hunspell dictionaries besides TraceDraw's own.
+    /// A folder of Hunspell dictionaries besides Rui's own.
     pub dictionary_folder: Option<PathBuf>,
     /// The dictionaries switched off, by name (`pt_BR`).
     pub disabled_dictionaries: Vec<String>,
@@ -1478,7 +1478,7 @@ pub fn config_dir() -> Option<PathBuf> {
 const WEB_KEY: &str = "tracedraw.settings";
 
 impl Settings {
-    /// The preferences as TraceDraw comes, keeping what is history rather
+    /// The preferences as Rui comes, keeping what is history rather
     /// than choice: the recent drawings, the last folder and the window's
     /// size.
     pub fn reset_keeping_history(&self) -> Settings {
@@ -1516,6 +1516,16 @@ impl Settings {
         if self.upgrades < 3 {
             self.snap.alignment_guides = false;
             self.snap.dynamic_guides = false;
+        }
+        // Add the contact button once to existing customized toolbars.
+        if self.upgrades < 4 {
+            if let Some(items) = self.bar_items.get_mut("standard") {
+                if !items.iter().any(|id| id == "contact_author") {
+                    let index = items.iter().position(|id| id == "ai")
+                        .map_or(items.len(), |index| index + 1);
+                    items.insert(index, "contact_author".into());
+                }
+            }
         }
         self.upgrades = self.upgrades.max(UPGRADES);
         self.migrate_ai();
@@ -1727,6 +1737,18 @@ fn default_focus_visibility() -> u8 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn contact_button_migrates_once_after_ai_without_duplicates() {
+        let mut settings = super::Settings { upgrades: 3, ..Default::default() };
+        settings.bar_items.insert("standard".into(), vec!["new".into(), "ai".into(), "save".into()]);
+        let settings = settings.upgrade();
+        assert_eq!(settings.bar_items["standard"], ["new", "ai", "contact_author", "save"]);
+        let mut settings = settings.upgrade();
+        assert_eq!(settings.bar_items["standard"].iter().filter(|id| *id == "contact_author").count(), 1);
+        settings.bar_items.get_mut("standard").unwrap().retain(|id| id != "contact_author");
+        assert!(!settings.upgrade().bar_items["standard"].iter().any(|id| id == "contact_author"));
+    }
+
     /// Stored defaults from an earlier version (RGB black text, and any
     /// other field of their time) give a CMYK drawing CMYK black text and
     /// an RGB drawing RGB black text; a colour of the user's own stays.

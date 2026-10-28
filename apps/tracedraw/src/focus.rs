@@ -1,5 +1,5 @@
 //! Focus mode: one group or object of a complex drawing edited on its
-//! own. Everything else fades (Options > TraceDraw > Edit > Visibility of
+//! own. Everything else fades (Options > Rui > Edit > Visibility of
 //! inactive objects), clicks pick only inside the object in focus, and a
 //! bar at the top of the drawing window shows the way in: the drawing,
 //! then each group, each a step back out. See docs/behavior/focus-mode.md.

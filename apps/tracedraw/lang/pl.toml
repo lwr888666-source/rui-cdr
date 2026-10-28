@@ -5144,3 +5144,10 @@ dialog.name_taken = "Element o nazwie {name} już tu istnieje."
 dialog.no_window = "Rui nie mógł otworzyć okna żadnym rendererem: {reason}\n\nSzczegóły są w {log}. Zwykle pomaga zainstalowanie własnego sterownika karty graficznej. Dołącz ten plik do zgłoszenia na https://github.com/lwr888666-source/rui-cdr/issues" # mt
 dialog.open_entry = "Otwórz"
 dialog.rename_entry = "Zmień nazwę"
+
+# Author contact card.
+toolbar.contact_author = "Contact author / Feedback"
+toolbar.contact_author_desc = "Scan the QR code to contact the author or report an issue."
+contact.title = "Contact author / Feedback"
+contact.hint = "Scan with WeChat to contact the author or report a problem."
+contact.unavailable = "The contact image could not be loaded."

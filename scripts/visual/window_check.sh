@@ -1,6 +1,6 @@
 #!/bin/bash
 # usage: window_check.sh <tracedraw binary>
-# Starts TraceDraw under Xvfb with a window manager (openbox), once with
+# Starts Rui under Xvfb with a window manager (openbox), once with
 # the splash screen and once without, and checks with xprop that the main
 # window can be maximized and resized and has no maximum size. A window
 # that kept the splash screen's size hints fails here (#1).

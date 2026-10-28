@@ -5144,3 +5144,10 @@ dialog.name_taken = "এখানে ইতিমধ্যে {name} নাম�
 dialog.no_window = "Rui কোনো রেন্ডারার দিয়েই তার উইন্ডো খুলতে পারেনি: {reason}\n\nবিস্তারিত {log}-এ আছে। গ্রাফিক্স কার্ডের নিজস্ব ড্রাইভার ইনস্টল করলে সাধারণত কাজ হয়। অনুগ্রহ করে ফাইলটি https://github.com/lwr888666-source/rui-cdr/issues-এ একটি ইস্যুতে সংযুক্ত করুন" # mt
 dialog.open_entry = "খুলুন"
 dialog.rename_entry = "নাম পরিবর্তন"
+
+# Author contact card.
+toolbar.contact_author = "Contact author / Feedback"
+toolbar.contact_author_desc = "Scan the QR code to contact the author or report an issue."
+contact.title = "Contact author / Feedback"
+contact.hint = "Scan with WeChat to contact the author or report a problem."
+contact.unavailable = "The contact image could not be loaded."

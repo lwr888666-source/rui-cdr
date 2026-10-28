@@ -25,6 +25,7 @@ pub mod color_picker;
 pub mod comments_docker;
 pub mod connector_bar;
 pub mod context;
+pub mod contact_author;
 pub mod contour_bar;
 pub mod coords_docker;
 pub mod crop_bar;

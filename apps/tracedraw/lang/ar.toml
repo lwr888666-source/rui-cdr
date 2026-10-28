@@ -5144,3 +5144,10 @@ dialog.name_taken = "يوجد هنا بالفعل عنصر باسم {name}."
 dialog.no_window = "تعذّر على Rui فتح نافذته بأي مُصيّر: {reason}\n\nالتفاصيل في {log}. عادةً ما يساعد تثبيت برنامج التشغيل الخاص ببطاقة الرسومات. يُرجى إرفاق هذا الملف ببلاغ على https://github.com/lwr888666-source/rui-cdr/issues" # mt
 dialog.open_entry = "فتح"
 dialog.rename_entry = "إعادة تسمية"
+
+# Author contact card.
+toolbar.contact_author = "Contact author / Feedback"
+toolbar.contact_author_desc = "Scan the QR code to contact the author or report an issue."
+contact.title = "Contact author / Feedback"
+contact.hint = "Scan with WeChat to contact the author or report a problem."
+contact.unavailable = "The contact image could not be loaded."

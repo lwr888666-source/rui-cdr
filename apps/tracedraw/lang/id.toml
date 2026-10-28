@@ -5144,3 +5144,10 @@ dialog.name_taken = "Sudah ada item bernama {name} di sini."
 dialog.no_window = "Rui tidak dapat membuka jendelanya dengan renderer apa pun: {reason}\n\nDetailnya ada di {log}. Memasang driver kartu grafis sendiri biasanya membantu. Lampirkan berkas itu ke sebuah issue di https://github.com/lwr888666-source/rui-cdr/issues" # mt
 dialog.open_entry = "Buka"
 dialog.rename_entry = "Ganti Nama"
+
+# Author contact card.
+toolbar.contact_author = "Contact author / Feedback"
+toolbar.contact_author_desc = "Scan the QR code to contact the author or report an issue."
+contact.title = "Contact author / Feedback"
+contact.hint = "Scan with WeChat to contact the author or report a problem."
+contact.unavailable = "The contact image could not be loaded."

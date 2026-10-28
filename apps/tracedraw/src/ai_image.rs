@@ -1,6 +1,6 @@
 //! AI images: pictures made, remixed or cut out by the AI service the
 //! user sets up with their own key (Tools > Options > AI > Service), when
-//! that service can make pictures. TraceDraw has no AI of its own;
+//! that service can make pictures. Rui has no AI of its own;
 //! nothing is sent until the user asks.
 //!
 //! Two kinds of image API are spoken to: Google's Gemini API

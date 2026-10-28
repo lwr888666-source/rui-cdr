@@ -46,7 +46,7 @@ impl ClipboardContent {
     }
 }
 
-/// What the system clipboard held when TraceDraw copied, so that a paste
+/// What the system clipboard held when Rui copied, so that a paste
 /// can tell whether something was copied elsewhere since (#183). Where
 /// the system counts clipboard changes (Windows) the count decides and
 /// nothing is read; elsewhere the text and the files decide, and a

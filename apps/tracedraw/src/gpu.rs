@@ -1,7 +1,7 @@
 //! Hardware acceleration (Options > General, #445): the window is drawn
 //! with wgpu on the graphics card chosen there (the fastest one when none
 //! is), or with the system's software adapter when it is off. A start
-//! whose renderer cannot open the window starts TraceDraw again with the
+//! whose renderer cannot open the window starts Rui again with the
 //! next one, hardware, then OpenGL, then software, so a virtual machine
 //! without a usable graphics card still opens (#439), and a computer
 //! whose card only OpenGL can drive is not drawn on the CPU (#616). See
@@ -273,7 +273,7 @@ pub fn watch_start(
                         if spawn_with(n, &args) {
                             std::process::exit(0);
                         }
-                        log::error!("could not start TraceDraw again with {n:?}");
+                        log::error!("could not start Rui again with {n:?}");
                         return;
                     }
                 }
@@ -614,7 +614,7 @@ fn args_with(next: Mode, args: &[String]) -> Vec<String> {
     rest
 }
 
-/// Run TraceDraw again with `next`, the other arguments kept, until it
+/// Run Rui again with `next`, the other arguments kept, until it
 /// ends; false when it did not start.
 pub fn restart_with(next: Mode, args: &[String]) -> bool {
     let Ok(exe) = std::env::current_exe() else {
@@ -626,7 +626,7 @@ pub fn restart_with(next: Mode, args: &[String]) -> bool {
         .is_ok()
 }
 
-/// Start TraceDraw again with `next` without waiting for it; false when
+/// Start Rui again with `next` without waiting for it; false when
 /// it did not start.
 fn spawn_with(next: Mode, args: &[String]) -> bool {
     let Ok(exe) = std::env::current_exe() else {

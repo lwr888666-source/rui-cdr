@@ -76,7 +76,7 @@ Status tracked in `docs/features.md`.
 - Order (decided 2026-10-14): Git hosting first, without a server of our own; storage services and real-time editing later. Stable IDs per object are done
 
 ## Later: image editing of its own (idea)
-- A raster editing tool inside TraceDraw (layers, selections, retouching) so a bitmap need not leave for an outside editor; until then Edit Bitmap hands the file to the system editor and the drawing follows its saves
+- A raster editing tool inside Rui (layers, selections, retouching) so a bitmap need not leave for an outside editor; until then Edit Bitmap hands the file to the system editor and the drawing follows its saves
 
 ## M9 Release (planned)
 - Automatic updates from inside the app (checking and downloading done, see `behavior/updates.md`; installing in place done for the Linux AppImage; Windows and macOS wait for code signing and a test on real machines)

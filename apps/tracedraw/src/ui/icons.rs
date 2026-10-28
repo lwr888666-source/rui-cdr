@@ -1041,6 +1041,7 @@ pub enum Action {
     /// (save to it as a commit).
     GitPull,
     GitPush,
+    Heart,
 }
 
 /// The New button's green badge with a white plus.
@@ -1446,6 +1447,21 @@ pub fn draw_action(painter: &Painter, r: Rect, a: Action, color: Color32) {
                 ],
                 s,
             ));
+        }
+        Action::Heart => {
+            let stroke = Stroke::new(1.35 * k, if enabled {
+                Color32::from_rgb(220, 56, 82)
+            } else {
+                color
+            });
+            const POINTS: [(f32, f32); 13] = [
+                (8.0, 14.0), (2.5, 8.5), (1.5, 6.0), (2.0, 3.5),
+                (4.0, 2.0), (6.0, 2.5), (8.0, 4.5), (10.0, 2.5),
+                (12.0, 2.0), (14.0, 3.5), (14.5, 6.0), (13.5, 8.5), (8.0, 14.0),
+            ];
+            for pair in POINTS.windows(2) {
+                painter.line_segment([p(r, pair[0].0, pair[0].1), p(r, pair[1].0, pair[1].1)], stroke);
+            }
         }
         Action::Launch => {
             painter.rect_stroke(

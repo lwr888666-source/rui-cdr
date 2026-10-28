@@ -57,7 +57,7 @@ polygon, snaps the same way.
 
 ## The pointer
 
-A solid black arrow (drawn by TraceDraw on a white halo, its tip on the
+A solid black arrow (drawn by Rui on a white halo, its tip on the
 hot spot) with a mark at its lower right for what a press would take:
 a small hollow square over a node (of a curve, or of a rectangle,
 ellipse or polygon, or an envelope, perspective or mesh node), a dot

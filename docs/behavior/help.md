@@ -1,6 +1,6 @@
 # Help
 
-The user Help: task pages for people drawing with TraceDraw, published
+The user Help: task pages for people drawing with Rui, published
 in every interface language, and the context help that opens them from
 the app.
 
@@ -9,8 +9,8 @@ the app.
 - Every "?" button of a dialog opens the Help page of that dialog: the
   page, and the section of it, that `help.rs` maps the dialog to. The
   Options dialogs' "?" opens the section of the options page on show
-  (Tools > Options > TraceDraw at Snapping opens the Snapping section of
-  the TraceDraw options page).
+  (Tools > Options > Rui at Snapping opens the Snapping section of
+  the Rui options page).
 - F1 opens the page of what is in front: the open dialog, else the
   docker on show, else the active tool. F1 works with a dialog open, and
   is left to the shortcut field while Options > Customization > Commands
@@ -71,14 +71,14 @@ the app.
 - Pages are written for people using the program: what a feature is for,
   how to do each task step by step, then what every option does. Facts
   come from the behaviour notes and the code, never from guesses. No em
-  dashes; the program is TraceDraw; no other graphics program is named.
+  dashes; the program is Rui; no other graphics program is named.
 - A translation keeps the same file name, the same `{#id}` anchors and
   the same `[[keys]]` as the English page; only the prose changes.
 
 ## Screenshots
 
 - The pages show the dialogs, options pages and panels they explain, as
-  TraceDraw draws them, in English. They are made once, in English only,
+  Rui draws them, in English. They are made once, in English only,
   and every language's pages use the same pictures (the alt text and the
   page text are translated): `docs/help/img/<topic>.png`, named after the
   Help topic with `/` and `#` as `-` (`pages-layout-pages-insert-page.png`),

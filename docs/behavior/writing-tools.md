@@ -16,7 +16,7 @@ Selection).
 
 Dictionaries (`spell.rs`, `hunspell.rs`): Hunspell dictionaries, a
 `.dic` word file with the `.aff` affix file of the same name, found in
-TraceDraw's `dictionaries` folder under the configuration folder and in
+Rui's `dictionaries` folder under the configuration folder and in
 the folder named under Options > Text > Spelling > Also read
 dictionaries from (each with the folders inside it, three deep, so a
 dictionary package unpacked there or another program's dictionary folder
@@ -26,7 +26,7 @@ used once, the user's folders first. `hyph_*` and `th_*` files
 (hyphenation patterns, thesauri) are left out; a `.dic` with no `.aff`
 is a plain word list. The Spelling tab lists them by name, each with a
 check box (on; the names switched off are kept in the preferences),
-Open Folder (creates and opens TraceDraw's folder) and Read Again
+Open Folder (creates and opens Rui's folder) and Read Again
 (reads the folders and the dictionaries again). A word is right when any
 dictionary in use, a system word list (`/usr/share/dict/*`), the
 built-in core words or the user's own words know it; a hyphenated word

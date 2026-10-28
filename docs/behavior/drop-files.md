@@ -1,7 +1,7 @@
 # Dropping files on the window
 
 Files dragged from the desktop or a file manager (in a browser: from the
-computer onto the page) and let go over the TraceDraw window open or
+computer onto the page) and let go over the Rui window open or
 import, with no dialog.
 
 ## What a drop does

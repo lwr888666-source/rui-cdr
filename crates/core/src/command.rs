@@ -16,6 +16,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "cmd", rename_all = "snake_case")]
 pub enum Command {
+    /// Ask the interface to show the author's contact card, without editing.
+    ContactAuthor,
     // Document
     SetTitle {
         title: String,
@@ -375,12 +377,13 @@ impl Command {
     /// (the Time Tracker's records): the engine applies them without an
     /// undo step, and undo and redo leave that state alone.
     pub fn outside_history(&self) -> bool {
-        matches!(self, Command::SetTimeTracker { .. })
+        matches!(self, Command::SetTimeTracker { .. } | Command::ContactAuthor)
     }
 
     /// Short label for the History panel and the Edit menu ("Undo Move").
     pub fn label(&self) -> &'static str {
         match self {
+            Command::ContactAuthor => "Contact Author",
             Command::SetTitle { .. } => "Rename Document",
             Command::AddPage { .. } => "Insert Page",
             Command::DeletePage { .. } => "Delete Page",
@@ -464,6 +467,7 @@ impl Command {
     /// when it refers to objects that do not exist.
     pub fn apply(&self, doc: &mut Document) -> Result<()> {
         match self {
+            Command::ContactAuthor => {}
             Command::SetTitle { title } => doc.title = title.clone(),
 
             Command::AddPage { name, size } => {

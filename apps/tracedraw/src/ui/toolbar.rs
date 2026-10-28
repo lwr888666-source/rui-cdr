@@ -7,7 +7,7 @@ use crate::tools::Tool;
 use crate::ui::icons;
 use crate::ui::tips::RichTip;
 use egui::{Ui, Vec2};
-use tracedraw_core::{document::ShapeKind, geometry::Rect, Fill};
+use tracedraw_core::{document::ShapeKind, geometry::Rect, Command, Fill};
 
 fn vsep(ui: &mut Ui) {
     ui.add(egui::Separator::default().vertical().spacing(6.0));
@@ -278,6 +278,7 @@ pub(crate) fn item_action(id: &str) -> Option<icons::Action> {
         "snap_off" | "snap_to" => A::SnapOff,
         "options" => A::Options,
         "launch" | "ai" => A::Launch,
+        "contact_author" => A::Heart,
         _ => return None,
     })
 }
@@ -311,6 +312,7 @@ pub(crate) fn item_name(id: &str) -> Option<String> {
         "options" => "toolbar.options",
         "launch" => "toolbar.launch",
         "ai" => "toolbar.ai_generate",
+        "contact_author" => "toolbar.contact_author",
         "zoom_in" => "menu.view.zoom_in",
         "zoom_out" => "menu.view.zoom_out",
         "zoom_selected" => "toolbar.zoom_to_selected",
@@ -633,6 +635,13 @@ pub(crate) fn draw_item(app: &mut App, ui: &mut Ui, bar: &str, id: &str) {
         }
         "launch" => launch_button(app, ui, bar),
         "ai" => ai_button(app, ui),
+        "contact_author" => {
+            if std_button(ui, icons::Action::Heart, &tip("toolbar.contact_author"), true, false)
+                .clicked()
+            {
+                app.run(Command::ContactAuthor);
+            }
+        }
         "zoom_in" | "zoom_out" => {
             let zoom_in = id == "zoom_in";
             let (pic, key) = if zoom_in {

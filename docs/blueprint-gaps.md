@@ -30,7 +30,7 @@ exceptions, shown disabled so the layout stays complete:
 - `.cdr` generations: `WL` binary (v1, v2), RIFF (v3 to 13), ZIP with
   `content/riffData.cdr` (14, 15), ZIP with `content/root.dat` and
   `content/data/*.dat` ordered by `content/dataFileList.dat` (16 and
-  later). TraceDraw reads all of them, the `WL` binary included, and
+  later). Rui reads all of them, the `WL` binary included, and
   writes versions 7 to 27 (see `cdr-format.md`, "Writing").
 - Coordinates: 1/1000 inch (16-bit versions, `V < 600`), 1/254000 inch
   otherwise.

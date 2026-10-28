@@ -2,9 +2,9 @@
 
 ## Copy (Ctrl+C) and Cut (Ctrl+X)
 
-The selection goes to TraceDraw's own clipboard, which keeps everything
+The selection goes to Rui's own clipboard, which keeps everything
 (styles, effects, links to object styles), and as SVG text to the system
-clipboard, so other programs can paste it. Right after the copy TraceDraw
+clipboard, so other programs can paste it. Right after the copy Rui
 notes what the system clipboard holds, without reading it back: the text
 it wrote (writing text replaces everything there), and on Windows the
 system's clipboard change count. A copy that writes nothing there (nodes,

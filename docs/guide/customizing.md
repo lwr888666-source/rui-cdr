@@ -175,7 +175,7 @@ scripts, and **record a macro**: what you do is written down as a script
 you can run again. An example is in the
 [project README](../../README.md#made-to-be-automated).
 
-A script can also add a file format: one that defines `TraceDrawFilter`
+A script can also add a file format: one that defines `RuiFilter`
 with a name, its extensions and an `Import` or `Export` function becomes
 a filter with **Install as Filter**, and its format then appears in
 **File > Import** and **File > Export**. See

@@ -464,6 +464,22 @@ mod tests {
     use crate::document::{Shape, ShapeKind};
     use crate::geometry::Rect;
 
+    #[test]
+    fn contact_author_preserves_document_history_and_saved_state() {
+        let mut engine = Engine::default();
+        engine.run(&Command::SetTitle { title: "Draft".into() }).unwrap();
+        engine.mark_saved();
+        let before = serde_json::to_vec(engine.document()).unwrap();
+        let revision = engine.revision();
+        let history = engine.history_labels();
+        engine.run(&Command::ContactAuthor).unwrap();
+        assert_eq!(before, serde_json::to_vec(engine.document()).unwrap());
+        assert_eq!(revision, engine.revision());
+        assert_eq!(history, engine.history_labels());
+        assert!(!engine.is_dirty());
+    }
+
+
     /// Each step has an id of its own, kept through undo, redo and
     /// amend; a step undone and replaced by another is gone for good.
     #[test]

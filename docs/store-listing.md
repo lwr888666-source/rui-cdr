@@ -1,6 +1,6 @@
 # Microsoft Store listing
 
-What to type in Partner Center for TraceDraw, field by field, so a
+What to type in Partner Center for Rui, field by field, so a
 submission takes minutes. The package itself comes from the build (see
 [`code-signing.md`](code-signing.md), Microsoft Store). Limits in
 brackets are the Store's.
@@ -30,7 +30,7 @@ of location or personal data, no purchases. The usual result is 3+ / E.
 
 ## Store listing (English, United States)
 
-**Product name**: TraceDraw
+**Product name**: Rui
 
 **Short description** [up to 1000 characters, shown first]:
 
@@ -42,7 +42,7 @@ of location or personal data, no purchases. The usual result is 3+ / E.
 
 **Description** [up to 10000 characters]:
 
-> TraceDraw is a free, open-source vector editor for illustration, page
+> Rui is a free, open-source vector editor for illustration, page
 > layout and print, written from scratch in Rust.
 >
 > Draw with rectangles, ellipses, polygons, stars, spirals, 71 common
@@ -71,7 +71,7 @@ of location or personal data, no purchases. The usual result is 3+ / E.
 > export your workspace to another computer. The interface speaks 18
 > languages.
 >
-> TraceDraw collects nothing and needs no account. It is free software
+> Rui collects nothing and needs no account. It is free software
 > under the MIT or Apache-2.0 license; the source code, the feature
 > status and the issue tracker are at github.com/igtoth/tracedraw.
 >
@@ -98,7 +98,7 @@ of [`CHANGELOG.md`](../CHANGELOG.md) for the version submitted.
 drawing, graphic design, print, cdr
 
 **Copyright and trademark info**: Copyright (c) 2026 Ighor Toth and the
-TraceDraw contributors. MIT or Apache-2.0.
+Rui contributors. MIT or Apache-2.0.
 
 **Screenshots** [PNG, 1366 x 768 or larger, up to 10]: the README pictures
 in `docs/images/` saved as PNG (1600 x 950): the poster (`hero`), curves,
@@ -118,7 +118,7 @@ version on the package must be higher than the last one submitted.
 
 The package declares `runFullTrust`. Partner Center asks why; answer:
 
-> TraceDraw is a desktop application (Win32, packaged with MSIX). It
+> Rui is a desktop application (Win32, packaged with MSIX). It
 > needs full trust to open and save the user's drawings anywhere they
 > choose, to read the installed fonts, to print, and to export files to
 > the folders the user picks. It collects no data and makes no network
@@ -128,6 +128,6 @@ The package declares `runFullTrust`. Partner Center asks why; answer:
 
 ## Notes for certification
 
-> TraceDraw starts on its Welcome Screen; File > New makes a drawing.
+> Rui starts on its Welcome Screen; File > New makes a drawing.
 > No account or sign-in is needed. Sample drawings can be made with any
 > tool in the toolbox on the left.

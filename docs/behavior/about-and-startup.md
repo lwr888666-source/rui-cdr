@@ -1,8 +1,8 @@
 # About box and start-up
 
-## About TraceDraw
+## About Rui
 
-Help > About TraceDraw opens the About box from the Welcome Screen as well
+Help > About Rui opens the About box from the Welcome Screen as well
 as from a drawing. It is a chrome dialog (white title bar with the close
 button) 480 points wide:
 
@@ -23,7 +23,7 @@ button) 480 points wide:
 
 ## Splash screen
 
-While TraceDraw starts, a borderless 640 x 380 point window centred on
+While Rui starts, a borderless 640 x 380 point window centred on
 the screen shows the same artwork as the About banner at a larger size
 (two selected nodes on the main curve), the 96 px icon, the name at
 46 px with the tagline, and a darker strip along the bottom with the
@@ -61,7 +61,7 @@ the version on the right).
 ## One window for every start (#646)
 
 A file opened from the file manager, a shortcut or the command line while
-TraceDraw runs opens in a tab of the running window (or shows its tab
+Rui runs opens in a tab of the running window (or shows its tab
 when it is open already, see `documents.md`), which comes to the front;
 the new start ends at once, before its log would replace the running
 one's (`instance.rs`). Several files selected together all go there (the
@@ -102,7 +102,7 @@ and `--reset-settings` starts open windows of their own.
   (#616). Off, the software adapter (WARP on Windows, a CPU Vulkan driver
   elsewhere). Options shows what draws the window in this run; the
   choice takes effect at the next start.
-- A start that cannot open the window that way runs TraceDraw again with
+- A start that cannot open the window that way runs Rui again with
   the next renderer, the other arguments kept; the first process waits
   for it. With hardware acceleration on the order is the graphics card,
   then `--renderer=gl` (OpenGL, as earlier versions drew), then
@@ -127,7 +127,7 @@ and `--reset-settings` starts open windows of their own.
   `--renderer=gl` did not start is that Windows drivers of that age
   cannot make an OpenGL ES context (WGL needs an extension they do not
   offer), which the log of a build with this fallback will confirm.
-  TraceDraw carries eframe 0.36.2 with the fallback of eframe 0.37
+  Rui carries eframe 0.36.2 with the fallback of eframe 0.37
   (`vendor/README.md`,
   `gpu::tests::opengl_falls_back_to_a_compatibility_context`,
   `gpu::eframe_context_fallback::tests`). Checked
@@ -138,7 +138,7 @@ and `--reset-settings` starts open windows of their own.
   the next renderer is tried; it is not written to `crash.log` or shown.
   When no renderer is left, the reason is logged and shown in a message
   box naming the log (a panic of the last one is shown as a crash, with
-  `crash.log`), and TraceDraw ends with an error.
+  `crash.log`), and Rui ends with an error.
 - A renderer can also end the program without an error to hand on: a
   graphics driver that crashes the process, or hangs it until it is
   closed, inside wgpu's set-up. So before the window is opened the start
@@ -153,7 +153,7 @@ and `--reset-settings` starts open windows of their own.
   `gpu::tests::a_start_that_never_opened_its_window_is_followed_by_the_next_renderer`).
 - A start whose window has not opened 20 seconds after it began
   (`gpu::WINDOW_WAIT`: the driver hung it inside wgpu's set-up, so it
-  never comes back to hand over) starts TraceDraw again with the next
+  never comes back to hand over) starts Rui again with the next
   renderer itself, the other arguments kept, and ends. Before that it
   answers no to later starts, so a file opened meanwhile goes to a window
   of its own instead of to the window that never shows. With the last
@@ -213,7 +213,7 @@ and `--reset-settings` starts open windows of their own.
 ## Back to the defaults
 
 Pressing F8 while the splash screen shows asks, once the editor is up,
-whether to reset every preference to how TraceDraw comes (Options >
+whether to reset every preference to how Rui comes (Options >
 Global > Reset all settings... asks the same). Reset keeps the recent
 drawings, the last folder and the window's size; Cancel changes
 nothing. `tracedraw --reset-settings` resets without asking (scripts,

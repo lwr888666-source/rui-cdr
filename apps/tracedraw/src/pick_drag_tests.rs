@@ -6407,7 +6407,7 @@ fn save_as_starts_at_the_cdr_type_and_version_the_options_set() {
             other => panic!("no Save Drawing dialog: {other:?}"),
         }
     };
-    // By default a new drawing is offered as TraceDraw, version 27 for .cdr.
+    // By default a new drawing is offered as Rui, version 27 for .cdr.
     assert_eq!(
         save_as(&ctx, &mut app),
         (false, tracedraw_cdr::write::NEWEST_VERSION)

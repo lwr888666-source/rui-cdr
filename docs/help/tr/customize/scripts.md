@@ -37,7 +37,7 @@ betiğin duraklatıldığı yerde değerlendirmek için bir ifade yazın.
 
 ## Betik filtreleri {#filters}
 
-Bir adı, uzantıları ve bir `Import` veya `Export` işleviyle `TraceDrawFilter`
+Bir adı, uzantıları ve bir `Import` veya `Export` işleviyle `RuiFilter`
 tanımlayan bir betik, [[menu.file.import]] ve [[menu.file.export]]
 komutlarına bir dosya biçimi ekler. Saklamak için [[docker.install_filter]]
 düğmesine tıklayın; [[docker.script_filters]] yüklü filtreleri

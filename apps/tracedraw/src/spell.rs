@@ -1,6 +1,6 @@
 //! Spell check over the document's text. Dictionaries: Hunspell
 //! dictionaries (a `.dic` word file with its `.aff` affix file, read by
-//! [`crate::hunspell`]) found in the system's folders, in TraceDraw's own
+//! [`crate::hunspell`]) found in the system's folders, in Rui's own
 //! `dictionaries` folder and in a folder the user names (Options > Text >
 //! Spelling, which also switches each one off); plain word lists
 //! (`/usr/share/dict/*`, a `.dic` with no `.aff`); a built-in core list of
@@ -141,12 +141,12 @@ fn word_lists() -> Vec<PathBuf> {
     .collect()
 }
 
-/// TraceDraw's own folder for dictionaries (`<config>/dictionaries`).
+/// Rui's own folder for dictionaries (`<config>/dictionaries`).
 pub fn own_folder() -> Option<PathBuf> {
     crate::settings::config_dir().map(|d| d.join("dictionaries"))
 }
 
-/// The folders searched, the user's first: TraceDraw's own folder and the
+/// The folders searched, the user's first: Rui's own folder and the
 /// one named in the options (each with the folders inside it, three deep,
 /// so a dictionary package unpacked there or another program's dictionary
 /// folder works), then the system's.

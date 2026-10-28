@@ -38,7 +38,7 @@ un'espressione per valutarla nel punto in cui lo script è in pausa.
 
 ## Filtri script {#filters}
 
-Uno script che definisce `TraceDrawFilter`, con un nome, delle estensioni e
+Uno script che definisce `RuiFilter`, con un nome, delle estensioni e
 una funzione `Import` o `Export`, aggiunge un formato di file a
 [[menu.file.import]] e [[menu.file.export]]. Fai clic su
 [[docker.install_filter]] per conservarlo; [[docker.script_filters]] elenca i

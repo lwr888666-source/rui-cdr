@@ -5144,3 +5144,10 @@ dialog.name_taken = "Er is hier al een item met de naam {name}."
 dialog.no_window = "Rui kon zijn venster met geen enkele renderer openen: {reason}\n\nDe details staan in {log}. Het eigen stuurprogramma van de videokaart installeren helpt meestal. Voeg dat bestand toe aan een issue op https://github.com/lwr888666-source/rui-cdr/issues" # mt
 dialog.open_entry = "Openen"
 dialog.rename_entry = "Naam wijzigen"
+
+# Author contact card.
+toolbar.contact_author = "Contact author / Feedback"
+toolbar.contact_author_desc = "Scan the QR code to contact the author or report an issue."
+contact.title = "Contact author / Feedback"
+contact.hint = "Scan with WeChat to contact the author or report a problem."
+contact.unavailable = "The contact image could not be loaded."

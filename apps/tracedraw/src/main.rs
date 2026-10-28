@@ -8,7 +8,7 @@
 // No console window in release builds on Windows.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-//! TraceDraw desktop app: a thin egui shell over the engine.
+//! Rui desktop app: a thin egui shell over the engine.
 
 mod ai;
 mod ai_image;
@@ -176,7 +176,7 @@ mod workspace_file;
 fn main() -> eframe::Result<()> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     // One window for every start (#646): files given to a start while
-    // TraceDraw runs go to its window, in tabs of their own, and this
+    // Rui runs go to its window, in tabs of their own, and this
     // start ends (before its log would replace the running one's).
     let files = instance::file_args(&args);
     let (inbox, handed_over) = std::sync::mpsc::channel();
@@ -217,7 +217,7 @@ fn main() -> eframe::Result<()> {
     }
     let wake = primary.as_ref().map(|p| p.wake.clone());
     let mut settings = settings::Settings::load();
-    // `--reset-settings`: every preference back to how TraceDraw comes
+    // `--reset-settings`: every preference back to how Rui comes
     // (the recent drawings and the window's size are kept).
     if args.iter().any(|a| a == "--reset-settings") {
         settings = settings.reset_keeping_history();
@@ -345,7 +345,7 @@ fn main() {
 
 struct Shell {
     app: Option<app::App>,
-    /// The splash screen while TraceDraw starts (see splash.rs).
+    /// The splash screen while Rui starts (see splash.rs).
     #[cfg(not(target_arch = "wasm32"))]
     splash: Option<splash::Splash>,
     /// The file to open once the splash is done.
@@ -409,7 +409,7 @@ impl eframe::App for Shell {
             self.splash = None;
             let mut app = app::App::new(ui.ctx(), self.open.take());
             splash::open_main_window(ui.ctx(), &app.settings);
-            // F8 held while TraceDraw started: ask before resetting.
+            // F8 held while Rui started: ask before resetting.
             if reset {
                 app.dialog = ui::dialogs::Dialog::ConfirmResetSettings;
             }

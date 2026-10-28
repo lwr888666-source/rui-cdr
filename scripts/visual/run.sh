@@ -11,7 +11,7 @@ export TRACEDRAW_SHOTS="${TRACEDRAW_SHOTS:-/tmp/tracedraw-visual}"
 mkdir -p "$TRACEDRAW_SHOTS/config"
 LOG="$TRACEDRAW_SHOTS/app.log"
 # Interface size 100 %: on Linux one interface point per pixel on this
-# unscaled screen (the size the scripts' coordinates are taken at). TraceDraw saves its preferences
+# unscaled screen (the size the scripts' coordinates are taken at). Rui saves its preferences
 # as they change, so each run starts from the defaults (the layout the
 # coordinates are taken at) unless TRACEDRAW_KEEP_SETTINGS=1 keeps what
 # the last run left.

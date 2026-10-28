@@ -14,12 +14,12 @@ Client configuration, for example:
 
 ## The open window (`tracedraw --mcp-window`)
 
-The same tools can work on the drawings of a TraceDraw window the user
+The same tools can work on the drawings of a Rui window the user
 has open. Options > Global > General > "Let AI agents on this computer
 edit the open drawing (MCP)" (off by default, desktop only) makes the
 window listen on a free port of `127.0.0.1` and write the port, a random
 128-bit token and its process id to `mcp-window.json` in the preferences
-folder (removed when the option is turned off or TraceDraw closes). The
+folder (removed when the option is turned off or Rui closes). The
 client is configured with the bridge as its command:
 
 ```json
