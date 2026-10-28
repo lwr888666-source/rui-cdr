@@ -19,12 +19,15 @@ download. An update removes the old application shortcut names and creates
 Rui shortcuts. Existing preference files and drawings are preserved.
 
 The application offers Simplified Chinese and seventeen other interface
-languages. A saved language choice wins. With no saved choice, the system
-locale is used; Windows desktop launches read the Windows user locale if
-`LC_ALL` and `LANG` are absent. Chinese Windows installations therefore use
-the Chinese interface without requiring a locale environment variable.
-Language can be changed on the Welcome Screen or in Options > Global >
-General, Language, without restarting.
+languages. This distribution starts in Simplified Chinese, including an
+empty or missing preference file. Preference upgrade 5 migrates the old
+English default to Simplified Chinese once. A language selected after that
+upgrade is preserved, including English. Existing choices of other
+languages are preserved.
+Language can be changed in Options > Global > General, Language, without
+restarting. The installer language does not control the interface language.
+The visual check starts with an actual version-4 English preference file
+and checks that the launched application displays Chinese.
 
 Checks cover the native title and exact icon pixels, Chinese welcome text,
 the cached title, the installer desktop shortcut's name and target, and

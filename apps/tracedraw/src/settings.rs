@@ -533,7 +533,7 @@ fn default_desktop() -> [u8; 3] {
 }
 
 /// How many one-time upgrades `Settings::upgrade` knows.
-const UPGRADES: u32 = 4;
+const UPGRADES: u32 = 5;
 
 fn default_outline_units() -> String {
     "pt".into()
@@ -1527,6 +1527,11 @@ impl Settings {
                 }
             }
         }
+        // This distribution starts in Simplified Chinese. Upgrade the
+        // English default saved by older builds once, then respect choices.
+        if self.language.is_empty() || (self.upgrades < 5 && self.language == "en") {
+            self.language = "zh-CN".into();
+        }
         self.upgrades = self.upgrades.max(UPGRADES);
         self.migrate_ai();
         self
@@ -1553,12 +1558,12 @@ impl Settings {
             // The browser build keeps settings in local storage.
             return crate::web::storage_get(WEB_KEY)
                 .and_then(|s| serde_json::from_str::<Settings>(&s).ok())
-                .map(Settings::upgrade)
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .upgrade();
         }
         #[allow(unreachable_code)]
         let Some(p) = Self::path() else {
-            return Settings::default();
+            return Settings::default().upgrade();
         };
         match std::fs::read_to_string(&p) {
             Ok(s) => {
@@ -1572,7 +1577,7 @@ impl Settings {
                 }
                 settings.upgrade()
             }
-            Err(_) => Settings::default(),
+            Err(_) => Settings::default().upgrade(),
         }
     }
 
@@ -1737,6 +1742,27 @@ fn default_focus_visibility() -> u8 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn chinese_default_repairs_legacy_english_once_and_preserves_later_choices() {
+        for json in [r#"{}"#, r#"{"language":"","upgrades":4}"#, r#"{"language":"en","upgrades":4}"#] {
+            let settings: super::Settings = serde_json::from_str(json).unwrap();
+            let fixed = settings.upgrade();
+            assert_eq!(fixed.language, "zh-CN");
+            assert_eq!(fixed.upgrades, super::UPGRADES);
+        }
+        assert_eq!(super::Settings::default().upgrade().language, "zh-CN");
+        for language in ["en", "de", "zh-TW", "zh-CN"] {
+            let current = super::Settings {
+                language: language.into(), upgrades: super::UPGRADES, ..Default::default()
+            };
+            let saved = serde_json::to_string(&current).unwrap();
+            let reopened: super::Settings = serde_json::from_str(&saved).unwrap();
+            assert_eq!(reopened.upgrade().language, language);
+        }
+        let old: super::Settings = serde_json::from_str(r#"{"language":"de","upgrades":4}"#).unwrap();
+        assert_eq!(old.upgrade().language, "de");
+    }
+
     #[test]
     fn contact_button_migrates_once_after_ai_without_duplicates() {
         let mut settings = super::Settings { upgrades: 3, ..Default::default() };

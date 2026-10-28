@@ -124,7 +124,7 @@ jobs:
           RUI_BINARY: ${{ github.workspace }}/target/${{ matrix.target }}/release/rui
         run: |
           sudo apt-get install -y python3-xlib python3-pil imagemagick fonts-noto-cjk
-          RUI_TEST_LANGUAGE=zh-CN TRACEDRAW_SHOTS="$RUNNER_TEMP/rui-visual/identity" bash scripts/visual/run.sh scripts/visual/rui_identity_zh.py
+          RUI_TEST_LANGUAGE=en RUI_TEST_UPGRADES=4 TRACEDRAW_SHOTS="$RUNNER_TEMP/rui-visual/identity" bash scripts/visual/run.sh scripts/visual/rui_identity_zh.py
           TRACEDRAW_SHOTS="$RUNNER_TEMP/rui-visual/smoke" bash scripts/visual/run.sh scripts/visual/smoke_edit.py
           MONKEY_SEED=20261028 MONKEY_STEPS=50 TRACEDRAW_SHOTS="$RUNNER_TEMP/rui-visual/monkey" bash scripts/visual/run.sh scripts/visual/monkey.py
 

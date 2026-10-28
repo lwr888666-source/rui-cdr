@@ -25,6 +25,7 @@ if sys.argv[2] == "1":
         s = {}
 s["ui_size"] = 1.0
 s["language"] = os.environ.get("RUI_TEST_LANGUAGE", "en")
+s["upgrades"] = int(os.environ.get("RUI_TEST_UPGRADES", "5"))
 json.dump(s, open(sys.argv[1], "w"), indent=2)
 PY
 Xvfb :99 -screen 0 1600x1000x24 >/dev/null 2>&1 & XPID=$!
