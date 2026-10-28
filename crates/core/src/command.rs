@@ -381,7 +381,10 @@ impl Command {
     /// (the Time Tracker's records): the engine applies them without an
     /// undo step, and undo and redo leave that state alone.
     pub fn outside_history(&self) -> bool {
-        matches!(self, Command::SetTimeTracker { .. } | Command::ContactAuthor)
+        matches!(
+            self,
+            Command::SetTimeTracker { .. } | Command::ContactAuthor
+        )
     }
 
     /// Short label for the History panel and the Edit menu ("Undo Move").

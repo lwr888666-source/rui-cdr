@@ -16,9 +16,9 @@
 //! undo step. Scripts an AI service wrote run untrusted
 //! ([`run_untrusted`]): without file access, with limits, all or nothing.
 
+mod path_nodes;
 pub mod vba_run;
 mod vg;
-mod path_nodes;
 #[cfg(test)]
 pub(crate) use path_nodes::tests::{node_fixture, REPAIR_SCRIPT};
 
@@ -340,7 +340,11 @@ pub fn run_untrusted(
 }
 
 /// The AI's selected-node mode enforces coordinate-only edits throughout.
-pub fn run_node_repair(app: &mut App, src: &str, label: &'static str) -> Result<(Vec<String>, usize), String> {
+pub fn run_node_repair(
+    app: &mut App,
+    src: &str,
+    label: &'static str,
+) -> Result<(Vec<String>, usize), String> {
     run_host_mode(app, src, Trust::Untrusted, label, false, true)
 }
 
@@ -483,7 +487,12 @@ fn run_host(
 }
 
 fn run_host_mode(
-    app: &mut App, src: &str, trust: Trust, label: &'static str, vg: bool, node_only: bool,
+    app: &mut App,
+    src: &str,
+    trust: Trust,
+    label: &'static str,
+    vg: bool,
+    node_only: bool,
 ) -> Result<(Vec<String>, usize), String> {
     let mut host = host_for(app, trust);
     host.vg = vg;
@@ -494,8 +503,12 @@ fn run_host_mode(
         shown,
         ..
     } = evaluate(host, src, None, None)?;
-    if let Some(error) = &inner.node_error { return Err(error.clone()); }
-    if inner.node_only { path_nodes::validate_result(app.doc(), &inner)?; }
+    if let Some(error) = &inner.node_error {
+        return Err(error.clone());
+    }
+    if inner.node_only {
+        path_nodes::validate_result(app.doc(), &inner)?;
+    }
     let mut output = inner.output;
     match result {
         Ok(_) => {
@@ -514,14 +527,26 @@ fn run_host_mode(
         }
     }
     let unchanged = inner.doc == *app.doc();
-    let changes = if unchanged { 0 } else if inner.node_only {
+    let changes = if unchanged {
+        0
+    } else if inner.node_only {
         path_nodes::changed_nodes(app.doc(), &inner.doc, &inner.node_scope)?
-    } else { inner.commands.len() };
+    } else {
+        inner.commands.len()
+    };
     if let Some(s) = inner.status {
         app.status = s;
     }
-    let selection = if inner.node_only { inner.node_scope } else { inner.selection };
-    let commands = if changes == 0 { Vec::new() } else { inner.commands };
+    let selection = if inner.node_only {
+        inner.node_scope
+    } else {
+        inner.selection
+    };
+    let commands = if changes == 0 {
+        Vec::new()
+    } else {
+        inner.commands
+    };
     apply(app, commands, selection, inner.page, label)?;
     Ok((output, changes))
 }
@@ -932,7 +957,9 @@ fn apply(
     label: &'static str,
 ) -> Result<(), String> {
     if !commands.is_empty() {
-        app.engine.run_batch(label, &commands).map_err(|e| e.to_string())?;
+        app.engine
+            .run_batch(label, &commands)
+            .map_err(|e| e.to_string())?;
     }
     app.page = page;
     app.selection = selection
@@ -963,7 +990,9 @@ fn dispatch(_this: &JsValue, args: &[JsValue], ctx: &mut Context) -> JsResult<Js
     };
     let mut h = host.0.borrow_mut();
     let out = h.call(&method, &a).map_err(|e| {
-        if h.node_only && h.trust == Trust::Untrusted { h.node_error.get_or_insert(e.clone()); }
+        if h.node_only && h.trust == Trust::Untrusted {
+            h.node_error.get_or_insert(e.clone());
+        }
         boa_engine::JsError::from(boa_engine::JsNativeError::error().with_message(e))
     })?;
     Ok(JsValue::from(js_string!(out.to_string())))
@@ -986,7 +1015,9 @@ fn color_from(v: &Value) -> Option<Color> {
 impl HostInner {
     fn run(&mut self, cmd: Command) -> Result<(), String> {
         if self.node_only && !matches!(cmd, Command::EditPathNodes { .. }) {
-            return Err("local node repair allows only ApplyPathNodeEdits on the original selection".into());
+            return Err(
+                "local node repair allows only ApplyPathNodeEdits on the original selection".into(),
+            );
         }
         if self.trust == Trust::Untrusted && self.commands.len() >= UNTRUSTED_MAX_CHANGES {
             return Err(format!(
@@ -1029,7 +1060,10 @@ impl HostInner {
     }
 
     fn call(&mut self, method: &str, a: &Value) -> Result<Value, String> {
-        if matches!(method, "get_selected_vector_geometry" | "apply_path_node_edits") {
+        if matches!(
+            method,
+            "get_selected_vector_geometry" | "apply_path_node_edits"
+        ) {
             return self.node_api(method, a);
         }
         if self.trust == Trust::Untrusted && FILE_METHODS.contains(&method) {

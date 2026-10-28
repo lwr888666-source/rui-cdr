@@ -413,7 +413,32 @@ struct DrawContext {
 
 fn node_request(request: &str) -> bool {
     let text = request.to_lowercase();
-    ["节点", "結點", "锚点", "錨點", "控制点", "控制點", "手柄", "node", "anchor", "control point", "handle", "bezier", "bézier", "贝塞尔"].iter().any(|word| text.contains(word))
+    [
+        "节点",
+        "結點",
+        "锚点",
+        "錨點",
+        "控制点",
+        "控制點",
+        "手柄",
+        "贝塞尔",
+    ]
+    .iter()
+    .any(|word| text.contains(word))
+        || text.split(|c: char| !c.is_alphanumeric()).any(|word| {
+            matches!(
+                word,
+                "node"
+                    | "nodes"
+                    | "anchor"
+                    | "anchors"
+                    | "handle"
+                    | "handles"
+                    | "bezier"
+                    | "bézier"
+            )
+        })
+        || text.contains("control point")
 }
 
 /// AI Drawing's state for the session (the docker's fields and the
@@ -703,8 +728,10 @@ pub fn extract_script(reply: &str) -> Option<String> {
         .map(|(_, body)| body.trim().to_string())
         .or_else(|| {
             let t = reply.trim();
-            let looks_like_code =
-                t.contains("ActiveLayer") || t.contains("ActivePage") || t.contains("ActiveDocument") || t.contains("Create");
+            let looks_like_code = t.contains("ActiveLayer")
+                || t.contains("ActivePage")
+                || t.contains("ActiveDocument")
+                || t.contains("Create");
             looks_like_code.then(|| t.to_string())
         })?;
     (!code.is_empty()).then_some(code)
@@ -760,8 +787,13 @@ impl App {
     /// Send `messages`; the reply is taken in by [`App::poll_ai`] (at once
     /// with a test transport).
     fn ai_send(&mut self, messages: Vec<(Role, String)>, request: String, retried: bool) {
-        let context = DrawContext { engine: self.engine.instance(), revision: self.engine.revision(), page: self.page,
-            selection: self.selection.clone(), node_only: node_request(&request) };
+        let context = DrawContext {
+            engine: self.engine.instance(),
+            revision: self.engine.revision(),
+            page: self.page,
+            selection: self.selection.clone(),
+            node_only: node_request(&request),
+        };
         let http = build_request(&self.settings.ai, &self.ai.key, &messages);
         self.ai.status = if retried {
             AiStatus::Retrying
@@ -902,7 +934,11 @@ impl App {
                 context,
             } => (messages, request, retried, context),
         };
-        if self.engine.instance() != context.engine || self.engine.revision() != context.revision || self.page != context.page || self.selection != context.selection {
+        if self.engine.instance() != context.engine
+            || self.engine.revision() != context.revision
+            || self.page != context.page
+            || self.selection != context.selection
+        {
             self.ai.status = AiStatus::Failed(tr("ai.context_changed"));
             return;
         }
@@ -931,7 +967,11 @@ impl App {
         match result {
             Ok((output, changes)) => {
                 self.ai.output = output;
-                self.ai.status = if changes == 0 { AiStatus::NoChanges } else { AiStatus::Done(changes) };
+                self.ai.status = if changes == 0 {
+                    AiStatus::NoChanges
+                } else {
+                    AiStatus::Done(changes)
+                };
                 // The request is done: the field is free for the next.
                 if self.ai.request.trim() == request {
                     self.ai.request.clear();
@@ -940,7 +980,11 @@ impl App {
                 while self.ai.history.len() > MAX_HISTORY {
                     self.ai.history.remove(0);
                 }
-                self.status = if changes == 0 { tr("ai.no_changes") } else { trf("status.ai_drawn", &[("n", &changes.to_string())]) };
+                self.status = if changes == 0 {
+                    tr("ai.no_changes")
+                } else {
+                    trf("status.ai_drawn", &[("n", &changes.to_string())])
+                };
             }
             Err(e) if !retried => {
                 let mut messages = messages;
@@ -1205,11 +1249,23 @@ mod tests {
         let before = app.doc().clone();
         app.ai.fake = Some(|req| {
             let body: Value = serde_json::from_str(&req.body).expect("request JSON");
-            let text = body["messages"].as_array().expect("messages").last().expect("user")["content"].as_str().expect("content");
+            let text = body["messages"]
+                .as_array()
+                .expect("messages")
+                .last()
+                .expect("user")["content"]
+                .as_str()
+                .expect("content");
             assert!(text.contains("只优化突出来的小节点，不改变原图形"));
             assert!(text.contains("geometry_token") && text.contains("selected_path_nodes_only"));
-            assert!(!text.contains("PRIVATE OTHER OBJECT"), "unselected geometry is not sent");
-            assert!(SYSTEM_PROMPT.contains("GetSelectedVectorGeometry") && SYSTEM_PROMPT.contains("ApplyPathNodeEdits"));
+            assert!(
+                !text.contains("PRIVATE OTHER OBJECT"),
+                "unselected geometry is not sent"
+            );
+            assert!(
+                SYSTEM_PROMPT.contains("GetSelectedVectorGeometry")
+                    && SYSTEM_PROMPT.contains("ApplyPathNodeEdits")
+            );
             anthropic_reply(&format!("```js\n{}\n```", crate::scripting::REPAIR_SCRIPT))
         });
         app.ai.request = "只优化突出来的小节点，不改变原图形".into();
@@ -1220,8 +1276,10 @@ mod tests {
         assert_eq!(app.selection, [selected]);
         let after = app.doc().clone();
         assert_ne!(after, before);
-        app.undo(); assert_eq!(app.doc(), &before);
-        app.redo(); assert_eq!(app.doc(), &after);
+        app.undo();
+        assert_eq!(app.doc(), &before);
+        app.redo();
+        assert_eq!(app.doc(), &after);
         // A second request sees the already repaired path and reports no change.
         app.ai.request = "只优化突出来的小节点，不改变原图形".into();
         let revision = app.engine.revision();
@@ -1235,13 +1293,22 @@ mod tests {
     fn node_repair_failure_never_leaves_partial_changes_or_reports_success() {
         let (mut app, _, _) = crate::scripting::node_fixture();
         app.ai.key = "sk-test".into();
-        app.ai.fake = Some(|_| anthropic_reply(&format!("```js\n{}\nthrow new Error('test failure after edit');\n```", crate::scripting::REPAIR_SCRIPT)));
+        app.ai.fake = Some(|_| {
+            anthropic_reply(&format!(
+                "```js\n{}\nthrow new Error('test failure after edit');\n```",
+                crate::scripting::REPAIR_SCRIPT
+            ))
+        });
         let before = app.doc().clone();
         let revision = app.engine.revision();
         app.ai.request = "只优化突出来的小节点，不改变原图形".into();
         app.ai_draw();
         assert!(matches!(app.ai.status, AiStatus::Failed(_)));
-        assert_eq!(app.ai.sent.len(), 2, "one normal request and one correction attempt");
+        assert_eq!(
+            app.ai.sent.len(),
+            2,
+            "one normal request and one correction attempt"
+        );
         assert!(app.ai.output.is_empty());
         assert_eq!(app.doc(), &before);
         assert_eq!(app.engine.revision(), revision);
@@ -1249,20 +1316,73 @@ mod tests {
     }
 
     #[test]
+    fn node_request_without_selection_or_supported_paths_is_an_honest_noop() {
+        let (mut app, _, other) = crate::scripting::node_fixture();
+        app.ai.key = "sk-test".into();
+        for selection in [Vec::new(), vec![other]] {
+            app.selection = selection;
+            app.ai.fake = Some(|req| {
+                assert!(
+                    !req.body.contains("selected outline"),
+                    "do not send unselected objects even when selection is empty"
+                );
+                anthropic_reply("```js\nconst g=ActiveDocument.GetSelectedVectorGeometry(); if(g.objects.length) throw new Error('expected unsupported or empty'); print(g.unsupported.map(o=>o.reason).join('; ') || 'No selected paths');\n```")
+            });
+            let before = app.doc().clone();
+            let revision = app.engine.revision();
+            app.ai.request = "只优化突出来的小节点，不改变原图形".into();
+            app.ai_draw();
+            assert_eq!(app.ai.status, AiStatus::NoChanges);
+            assert!(!app.ai.output.is_empty());
+            assert_eq!(app.doc(), &before);
+            assert_eq!(app.engine.revision(), revision);
+        }
+        assert!(!node_request("draw a bicycle handlebar"));
+        assert!(node_request("adjust the handles of selected nodes"));
+    }
+
+    #[test]
     fn pending_reply_cannot_edit_a_changed_selection_document_or_page() {
         let (mut app, selected, other) = crate::scripting::node_fixture();
         for mutation in 0..4 {
-            let context = DrawContext { engine: app.engine.instance(), revision: app.engine.revision(), page: app.page, selection: vec![selected], node_only: true };
+            let context = DrawContext {
+                engine: app.engine.instance(),
+                revision: app.engine.revision(),
+                page: app.page,
+                selection: vec![selected],
+                node_only: true,
+            };
             let (_, rx) = std::sync::mpsc::channel();
-            let pending = Pending { rx, job: Job::Draw { messages: Vec::new(), request: "repair nodes".into(), retried: false, context } };
+            let pending = Pending {
+                rx,
+                job: Job::Draw {
+                    messages: Vec::new(),
+                    request: "repair nodes".into(),
+                    retried: false,
+                    context,
+                },
+            };
             match mutation {
                 0 => app.selection = vec![other],
-                1 => { app.selection = vec![selected]; app.engine.run(&tracedraw_core::Command::SetShapeName { shape: selected, name: Some("changed while waiting".into()) }).expect("rename"); },
-                2 => { app.engine.replace(app.doc().clone()); },
+                1 => {
+                    app.selection = vec![selected];
+                    app.engine
+                        .run(&tracedraw_core::Command::SetShapeName {
+                            shape: selected,
+                            name: Some("changed while waiting".into()),
+                        })
+                        .expect("rename");
+                }
+                2 => {
+                    app.engine.replace(app.doc().clone());
+                }
                 _ => app.page = tracedraw_core::PageId(u64::MAX),
             }
             let before = app.doc().clone();
-            app.ai_receive(anthropic_reply(&format!("```js\n{}\n```", crate::scripting::REPAIR_SCRIPT)), pending);
+            app.ai_receive(
+                anthropic_reply(&format!("```js\n{}\n```", crate::scripting::REPAIR_SCRIPT)),
+                pending,
+            );
             assert_eq!(app.ai.status, AiStatus::Failed(tr("ai.context_changed")));
             assert_eq!(app.doc(), &before);
             assert!(app.ai.sent.is_empty());
